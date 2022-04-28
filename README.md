@@ -9,7 +9,9 @@ Finds time skews in an evtx file
 
 ## Example
 
-<img src="https://github.com/janstarke/evtxtools/blob/master/doc/img/evtxls.png?raw=true">
+<img src="https://github.com/janstarke/evtxtools/blob/master/doc/img/evtxscan1.png?raw=true">
+
+<img src="https://github.com/janstarke/evtxtools/blob/master/doc/img/evtxscan2.png?raw=true">
 
 ## Usage
 
@@ -43,6 +45,8 @@ OPTIONS:
 Displays one or more events from an evtx file.
 
 ## Example
+
+<img src="https://github.com/janstarke/evtxtools/blob/master/doc/img/evtxls.png?raw=true">
 
 ## Usage
 ```
