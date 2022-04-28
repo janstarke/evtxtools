@@ -8,12 +8,21 @@ use evtx::{EvtxParser, SerializedEvtxRecord};
 use libevtx::{EventId, Range};
 use term_table::{row::Row, table_cell::TableCell};
 
+/// Find time skews in an evtx file
 #[derive(Parser)]
+#[clap(author,version,name=env!("CARGO_BIN_NAME"))]
 struct Cli {
+
+    /// name of the evtx file to scan
     evtx_file: String,
 
-    #[clap(short, long)]
+    /// display also the contents of the records befor and after a time skew
+    #[clap(short='S', long)]
     show_records: bool,
+
+    /// negative tolerance limit (in seconds): time skews to the past below this limit will be ignored
+    #[clap(short='N', long, default_value_t=5)]
+    negative_tolerance: u32
 }
 
 fn main() -> Result<()> {
@@ -66,7 +75,7 @@ fn print_ranges(
     records: &HashMap<EventId, SerializedEvtxRecord<serde_json::Value>>,
     cli: &Cli,
 ) {
-    let allowed_bias = Duration::seconds(5);
+    let allowed_bias = Duration::seconds(cli.negative_tolerance.into());
     if cli.show_records {
         for range in ranges.iter() {
             let mut table = term_table::Table::new();
