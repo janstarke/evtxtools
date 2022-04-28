@@ -9,6 +9,8 @@ Finds time skews in an evtx file
 
 ## Example
 
+<img src="https://github.com/janstarke/evtxtools/blob/master/doc/img/evtxls.png?raw=true">
+
 ## Usage
 
 ```
