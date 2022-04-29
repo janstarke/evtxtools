@@ -40,7 +40,7 @@ OPTIONS:
             Print version information
 ```
 
-# `evtxls`
+# `evtxcat`
 
 Displays one or more events from an evtx file.
 
@@ -50,11 +50,11 @@ Displays one or more events from an evtx file.
 
 ## Usage
 ```
-evtxls 0.2.0
+evtxcat 0.2.0
 Display one or more events from an evtx file
 
 USAGE:
-    evtxls [OPTIONS] <EVTX_FILE>
+    evtxcat [OPTIONS] <EVTX_FILE>
 
 ARGS:
     <EVTX_FILE>    Name of the evtx file to read from

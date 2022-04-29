@@ -1,6 +1,6 @@
 [package]
 name = "evtxtools"
-version = "0.2.2"
+version = "1.0.0"
 edition = "2021"
 author = "Jan Starke <jan.starke@posteo.de>"
 license = "GPL-3.0"
@@ -18,8 +18,8 @@ name = "evtxscan"
 path = "src/evtxscan.rs"
 
 [[bin]]
-name = "evtxls"
-path = "src/evtxls.rs"
+name = "evtxcat"
+path = "src/evtxcat.rs"
 
 
 [dependencies]
