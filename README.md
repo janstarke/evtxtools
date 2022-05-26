@@ -50,7 +50,7 @@ Displays one or more events from an evtx file.
 
 ## Usage
 ```
-evtxcat 0.2.0
+evtxcat 1.1.0
 Display one or more events from an evtx file
 
 USAGE:
@@ -60,9 +60,11 @@ ARGS:
     <EVTX_FILE>    Name of the evtx file to read from
 
 OPTIONS:
-    -h, --help         Print help information
-    -i, --id <ID>      show only the one event with this record identifier
-        --max <MAX>    filter: maximal event record identifier
-        --min <MIN>    filter: minimal event record identifier
-    -V, --version      Print version information
+    -F, --format <FORMAT>    [possible values: json, xml]
+    -h, --help               Print help information
+    -i, --id <ID>            show only the one event with this record identifier
+        --max <MAX>          filter: maximal event record identifier
+        --min <MIN>          filter: minimal event record identifier
+    -T, --hide-table         don't display the records in a table format
+    -V, --version            Print version information
 ```
