@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc, NaiveDateTime, Duration};
+use chrono::{DateTime, Utc, Duration};
 use evtx::SerializedEvtxRecord;
 
 
@@ -12,7 +12,7 @@ pub struct EventId {
 impl Default for EventId {
     fn default() -> Self {
         Self {
-            timestamp: DateTime::from_utc(NaiveDateTime::from_timestamp(0,0), Utc),
+            timestamp: Default::default(),
             event_record_id: u64::default(),
             allowed_bias: Duration::seconds(10)
         }
