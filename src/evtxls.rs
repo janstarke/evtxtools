@@ -76,14 +76,13 @@ fn display_results<T: Read + Seek>(mut parser: EvtxParser<T>, cli: &Cli) -> Resu
 
 fn display_record(record: &SerializedEvtxRecord<Value>, cli: &Cli) -> Result<()> {
     let ip_regex = regex!(r"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b");
-    let ip_parts_regex = regex!(r"(\d+)\.(\d+)\.(\d+)\.(\d+)");
     let size = record.data.to_string().len();
     let event_id = EventId::try_from(record)?;
     let user_data = record.data["Event"]
         .get("UserData")
         .map(|user_data| user_data.to_string());
 
-    let mut event_data = record.data["Event"]
+    let event_data = record.data["Event"]
         .get("EventData")
         .map(|event_data| event_data.to_string())
         .or(user_data.or(Some("".to_owned())))
@@ -115,7 +114,7 @@ fn display_record(record: &SerializedEvtxRecord<Value>, cli: &Cli) -> Result<()>
         }
     }
 
-    let mut output = match cli.delimiter {
+    let output = match cli.delimiter {
         None => format!(
             "{:12} {} {:8} {:5} {}",
             record.event_record_id,
