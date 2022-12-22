@@ -12,17 +12,16 @@ use term_table::{row::Row, table_cell::TableCell};
 #[derive(Parser)]
 #[clap(author,version,name=env!("CARGO_BIN_NAME"))]
 struct Cli {
-
     /// name of the evtx file to scan
     evtx_file: String,
 
     /// display also the contents of the records befor and after a time skew
-    #[clap(short='S', long)]
+    #[clap(short = 'S', long)]
     show_records: bool,
 
     /// negative tolerance limit (in seconds): time skews to the past below this limit will be ignored
-    #[clap(short='N', long, default_value_t=5)]
-    negative_tolerance: u32
+    #[clap(short = 'N', long, default_value_t = 5)]
+    negative_tolerance: u32,
 }
 
 fn main() -> Result<()> {
@@ -71,7 +70,7 @@ fn main() -> Result<()> {
 }
 
 fn print_ranges(
-    ranges: &Vec<Range>,
+    ranges: &[Range],
     records: &HashMap<EventId, SerializedEvtxRecord<serde_json::Value>>,
     cli: &Cli,
 ) {
@@ -79,12 +78,12 @@ fn print_ranges(
     if cli.show_records {
         for range in ranges.iter() {
             let mut table = term_table::Table::new();
-            termsize::get().map(|size| {
+            if let Some(size) = termsize::get() {
                 table.set_max_column_widths(vec![
                     (0, (size.cols / 2).into()),
                     (1, (size.cols / 2).into()),
                 ])
-            });
+            }
 
             table.add_row(Row::new(vec![
                 TableCell::new_with_alignment(
@@ -109,13 +108,13 @@ fn print_ranges(
             println!("{}", table.render());
 
             let mut table = term_table::Table::new();
-            termsize::get().map(|size| {
+            if let Some(size) = termsize::get() {
                 table.set_max_column_widths(vec![
                     (0, 12),
                     (1, (size.cols / 2 - 8).into()),
                     (2, (size.cols / 2 - 8).into()),
                 ])
-            });
+            }
             let mut last_event: Option<&EventId> = None;
             for current_event in range.events() {
                 if let Some(event) = last_event {
@@ -170,7 +169,7 @@ fn print_ranges(
 
                         let duration = *current_event.timestamp() - *event.timestamp();
                         println!("    this is a duration of {}", duration);
-                        println!("");
+                        println!();
                     }
                 }
                 last_event = Some(current_event);

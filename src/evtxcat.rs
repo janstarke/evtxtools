@@ -1,7 +1,8 @@
 use std::{
     collections::HashMap,
+    fs::File,
     io::{Read, Seek},
-    path::PathBuf, fs::File,
+    path::PathBuf,
 };
 
 use anyhow::Result;
@@ -37,26 +38,25 @@ struct Cli {
     #[clap(short('T'), long("hide-table"))]
     hide_table: bool,
 
-    #[clap(arg_enum, short('F'), long("format"))]
+    #[clap(value_enum, short('F'), long("format"))]
     format: Option<OutputFormat>,
 }
 
-#[derive(clap::ArgEnum, Clone)]
+#[derive(clap::ValueEnum, Clone)]
 enum OutputFormat {
-    JSON,
-    XML
+    Json,
+    Xml,
 }
 
 trait RecordFilter: Sized {
     type ReaderType: Read + Seek;
 
-    fn unfiltered<'p>(parser: &'p mut EvtxParser<Self::ReaderType>) -> 
-        Unfiltered<Self>;
+    fn unfiltered(parser: &mut EvtxParser<Self::ReaderType>) -> Unfiltered<Self>;
 
-    fn filter_by_id(mut parser: EvtxParser<Self::ReaderType>, filter_id: u64) -> (
-        Vec<u64>,
-        HashMap<u64, SerializedEvtxRecord<Self>>,
-    ) {
+    fn filter_by_id(
+        mut parser: EvtxParser<Self::ReaderType>,
+        filter_id: u64,
+    ) -> (Vec<u64>, HashMap<u64, SerializedEvtxRecord<Self>>) {
         let mut record_ids: Vec<u64> = Vec::new();
         let mut records: HashMap<u64, SerializedEvtxRecord<Self>> = HashMap::new();
         match Self::unfiltered(&mut parser).find(|record| match record {
@@ -73,19 +73,20 @@ trait RecordFilter: Sized {
         (record_ids, records)
     }
 
-    fn filter_by_range(mut parser: EvtxParser<Self::ReaderType>, min: u64, max: u64) -> (
-        Vec<u64>,
-        HashMap<u64, SerializedEvtxRecord<Self>>,
-    ) {
+    fn filter_by_range(
+        mut parser: EvtxParser<Self::ReaderType>,
+        min: u64,
+        max: u64,
+    ) -> (Vec<u64>, HashMap<u64, SerializedEvtxRecord<Self>>) {
         let mut record_ids: Vec<u64> = Vec::new();
         let mut records: HashMap<u64, SerializedEvtxRecord<Self>> = HashMap::new();
-    
+
         for record in Self::unfiltered(&mut parser) {
             match record {
                 Err(_) => (),
                 Ok(evt) => {
                     let id = evt.event_record_id;
-    
+
                     if id >= min && id <= max {
                         record_ids.push(id);
                         records.insert(id, evt);
@@ -93,7 +94,7 @@ trait RecordFilter: Sized {
                 }
             }
         }
-    
+
         record_ids.sort();
         (record_ids, records)
     }
@@ -102,27 +103,25 @@ trait RecordFilter: Sized {
 impl RecordFilter for serde_json::Value {
     type ReaderType = File;
 
-    fn unfiltered<'p>(parser: &'p mut EvtxParser<Self::ReaderType>) -> 
-        Unfiltered<Self> {
+    fn unfiltered(parser: &mut EvtxParser<Self::ReaderType>) -> Unfiltered<Self> {
         Unfiltered {
-            inner: Box::new(parser.records_json_value())
-        }  
+            inner: Box::new(parser.records_json_value()),
+        }
     }
 }
 
 impl RecordFilter for String {
     type ReaderType = File;
 
-    fn unfiltered<'p>(parser: &'p mut EvtxParser<Self::ReaderType>) -> 
-        Unfiltered<Self> {
+    fn unfiltered(parser: &mut EvtxParser<Self::ReaderType>) -> Unfiltered<Self> {
         Unfiltered {
-            inner: Box::new(parser.records())
-        }  
+            inner: Box::new(parser.records()),
+        }
     }
 }
 
 struct Unfiltered<'a, V> {
-    inner: Box<dyn Iterator<Item = evtx::err::Result<SerializedEvtxRecord<V>>> + 'a>
+    inner: Box<dyn Iterator<Item = evtx::err::Result<SerializedEvtxRecord<V>>> + 'a>,
 }
 
 impl<'a, V> Iterator for Unfiltered<'a, V> {
@@ -134,13 +133,12 @@ impl<'a, V> Iterator for Unfiltered<'a, V> {
 }
 
 trait RecordListFormatter: Sized {
-
     fn format(record: &SerializedEvtxRecord<Self>) -> String;
 
     fn display_results(
         record_ids: Vec<u64>,
         records: HashMap<u64, SerializedEvtxRecord<Self>>,
-        cli: &Cli
+        cli: &Cli,
     ) {
         if cli.hide_table {
             for id in record_ids.into_iter() {
@@ -149,9 +147,10 @@ trait RecordListFormatter: Sized {
             }
         } else {
             let mut table = term_table::Table::new();
-            termsize::get()
-                .map(|size| table.set_max_column_widths(vec![(0, 12), (1, (size.cols - 16).into())]));
-        
+            if let Some(size) = termsize::get() {
+                table.set_max_column_widths(vec![(0, 12), (1, (size.cols - 16).into())])
+            }
+
             for id in record_ids.into_iter() {
                 let record = &records[&id];
                 table.add_row(Row::new(vec![
@@ -176,7 +175,6 @@ impl RecordListFormatter for serde_json::Value {
     }
 }
 
-
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
@@ -185,22 +183,22 @@ fn main() -> Result<()> {
     let parser = EvtxParser::from_path(path)?;
 
     match cli.format {
-        None | Some(OutputFormat::JSON) => {
+        None | Some(OutputFormat::Json) => {
             let (record_ids, records) = if let Some(filter_id) = cli.id {
                 serde_json::Value::filter_by_id(parser, filter_id)
             } else {
-                let min = cli.min.or(Some(u64::MIN)).unwrap();
-                let max = cli.max.or(Some(u64::MAX)).unwrap();
+                let min = cli.min.unwrap_or(u64::MIN);
+                let max = cli.max.unwrap_or(u64::MAX);
                 serde_json::Value::filter_by_range(parser, min, max)
             };
             serde_json::Value::display_results(record_ids, records, &cli);
         }
-        Some(OutputFormat::XML) => {
+        Some(OutputFormat::Xml) => {
             let (record_ids, records) = if let Some(filter_id) = cli.id {
                 String::filter_by_id(parser, filter_id)
             } else {
-                let min = cli.min.or(Some(u64::MIN)).unwrap();
-                let max = cli.max.or(Some(u64::MAX)).unwrap();
+                let min = cli.min.unwrap_or(u64::MIN);
+                let max = cli.max.unwrap_or(u64::MAX);
                 String::filter_by_range(parser, min, max)
             };
             String::display_results(record_ids, records, &cli);

@@ -52,6 +52,11 @@ impl Range {
     }
 
     #[allow(dead_code)]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    #[allow(dead_code)]
     pub fn events(&self) -> std::slice::Iter<'_, EventId> {
         self.events.iter()
     }
