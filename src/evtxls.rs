@@ -26,6 +26,12 @@ struct Cli {
     /// produce bodyfile output (ignores the `delimiter` option)
     #[clap(short('b'), long("bodyfile"))]
     generate_bodyfile: bool,
+
+    /// List events with only the specified event ids
+    #[clap(short('i'), long("event-id"), use_value_delimiter=true, value_delimiter=',')]
+    filter_event_ids: Vec<u64>,
+
+    
 }
 fn main() -> Result<()> {
     let cli = Cli::parse();
@@ -45,7 +51,20 @@ fn display_results<T: Read + Seek>(mut parser: EvtxParser<T>, cli: &Cli) {
     for result in parser.records_json_value() {
         match result {
             Err(_) => (),
-            Ok(record) => display_record(&record, cli),
+            Ok(record) => {
+                if ! cli.filter_event_ids.is_empty() {
+                    let event_id = &record.data["Event"]["System"]["EventID"];
+                    if let Some(event_id) = event_id.as_u64() {
+                        if ! cli.filter_event_ids.contains(&event_id) {
+                            continue;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
+
+                display_record(&record, cli)
+            }
         }
     }
 }
