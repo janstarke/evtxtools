@@ -22,8 +22,8 @@ pub (crate) struct Process {
     pub (crate) target_user_name: String,
     pub (crate) target_domain_name: String,
     pub (crate) target_logon_id: String,
-    pub (crate) parent_process_name: String,
-    pub (crate) mandatory_label: String,
+    pub (crate) parent_process_name: Option<String>,
+    pub (crate) mandatory_label: Option<String>,
     pub (crate) children: BTreeMap<DateTime<Utc>, Weak<RefCell<Self>>>,
     pub (crate) is_root: bool,
 }
@@ -113,6 +113,18 @@ macro_rules! from_json {
     };
 }
 
+macro_rules! from_json_or_null {
+    ($value: ident, $( $att:expr ),+) => {
+        {
+            let mut value = $value;
+            $(
+                value = value.get($att).or(Some(&Value::Null)).unwrap();
+            )+
+            value
+        }
+    };
+}
+
 fn u64_from_value(value: &Value) -> anyhow::Result<u64> {
     if let Some(v) = value.as_u64() {
         Ok(v)
@@ -128,10 +140,8 @@ fn u64_from_hex_value(value: &Value) -> anyhow::Result<u64> {
     }
 }
 
-impl TryFrom<SerializedEvtxRecord<Value>> for Process {
-    type Error = anyhow::Error;
-
-    fn try_from(record: SerializedEvtxRecord<Value>) -> Result<Self, Self::Error> {
+impl Process {
+    pub fn try_from(record: SerializedEvtxRecord<Value>) -> anyhow::Result<Option<Self>> {
         let value = &record.data;
         let event = from_json!(value, "Event");
         let system = from_json!(event, "System");
@@ -144,7 +154,7 @@ impl TryFrom<SerializedEvtxRecord<Value>> for Process {
         })?;
 
         if event_id != 4688 {
-            bail!("event cannot be converted to process");
+            return Ok(None);
         }
 
         let event_data = from_json!(event, "EventData");
@@ -195,16 +205,14 @@ impl TryFrom<SerializedEvtxRecord<Value>> for Process {
             .as_str()
             .unwrap()
             .into();
-        let parent_process_name = from_json!(event_data, "ParentProcessName")
+        let parent_process_name = from_json_or_null!(event_data, "ParentProcessName")
             .as_str()
-            .unwrap()
-            .into();
-        let mandatory_label = from_json!(event_data, "MandatoryLabel")
+            .map(|s|s.to_owned());
+        let mandatory_label = from_json_or_null!(event_data, "MandatoryLabel")
             .as_str()
-            .unwrap()
-            .into();
+            .map(|s|s.to_owned());
 
-        Ok(Self {
+        Ok(Some(Self {
             timestamp: record.timestamp,
             event_record_id: record.event_record_id,
             subject_user_sid,
@@ -224,6 +232,6 @@ impl TryFrom<SerializedEvtxRecord<Value>> for Process {
             mandatory_label,
             children: Default::default(),
             is_root: true,
-        })
+        }))
     }
 }
