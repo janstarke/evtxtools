@@ -166,14 +166,15 @@ fn highlight_string(s: &str) -> HighlightedString {
         for c in ip_regex.captures_iter(s) {
             for m in c.iter().flatten() {
                 let ip_addr = Ipv4Addr::from_str(m.as_str()).unwrap();
-                if ip_addr.is_link_local() || ip_addr.is_loopback() {
+                if ip_addr.is_link_local() || ip_addr.is_loopback() || ip_addr.is_unspecified() {
                     continue;
                 }
                 if ip_addr.is_private() {
                     return s.bright_purple().into();
                 }
+
                 //if ip_addr.is_global() {
-                    return s.bright_red().on_yellow().into();
+                    return s.red().on_bright_yellow().into();
                 //}
             }
         }
