@@ -14,6 +14,9 @@ mod data;
 use serde::Serialize;
 use serde_json::{Value, json};
 use lazy_regex::regex;
+use regex::Regex;
+
+static mut HIGHLIGHT_REGEX: Option<Regex> = None;
 
 /// Display one or more events from an evtx file
 #[derive(Parser)]
@@ -44,7 +47,11 @@ struct Cli {
 
     /// hide events newer than the specified date (hint: use RFC 3339 syntax)
     #[clap(short('t'), long("to"))]
-    not_after: Option<Rfc3339Datetime>
+    not_after: Option<Rfc3339Datetime>,
+
+    /// highlight event data based on this regular expression
+    #[clap(short('r'), long("regex"))]
+    highlight: Option<Regex>
 }
 
 #[derive(Clone)]
@@ -78,6 +85,9 @@ impl From<&str> for Rfc3339Datetime {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
+    unsafe{
+        HIGHLIGHT_REGEX = cli.highlight.clone();
+    }
 
     for f_name in cli.evtx_file.iter() {
         let path = PathBuf::try_from(&f_name)?;
@@ -151,6 +161,7 @@ impl Serialize for HighlightedString {
 
 fn highlight_string(s: &str) -> HighlightedString {
     let ip_regex = regex!(r"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b");
+    let file_regex = regex!(r"[a-zA-Z]:\\\\?(?:[^\\]+\\\\?)+");
     if ip_regex.is_match(s) {
         for c in ip_regex.captures_iter(s) {
             for m in c.iter().flatten() {
@@ -168,8 +179,20 @@ fn highlight_string(s: &str) -> HighlightedString {
         }
     }
 
+    if file_regex.is_match(s) {
+        return s.bright_green().into()
+    }
+
     if s.to_lowercase().contains("admin") {
         return s.bright_yellow().on_red().into()
+    }
+
+    unsafe {
+        if let Some(regex) = HIGHLIGHT_REGEX.as_ref() {
+            if regex.is_match(s) {
+                return s.blue().on_bright_white().into()
+            }
+        }
     }
 
     s.bright_blue().into()
