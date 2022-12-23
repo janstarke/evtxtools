@@ -4,10 +4,11 @@ use std::{
 };
 
 use anyhow::Result;
+use chrono::{DateTime, Utc, NaiveDateTime, NaiveDate, NaiveTime};
 use clap::Parser;
 use colored::{Colorize, control::SHOULD_COLORIZE, ColoredString};
 use data::EventId;
-use evtx::{EvtxParser, SerializedEvtxRecord};
+use evtx::{EvtxParser, SerializedEvtxRecord, ParserSettings};
 mod data;
 
 use serde::Serialize;
@@ -33,17 +34,56 @@ struct Cli {
     #[clap(short('i'), long("event-id"), use_value_delimiter=true, value_delimiter=',')]
     filter_event_ids: Vec<u16>,
     
-    // highlight interesting content using colors
+    /// highlight interesting content using colors
     #[clap(short('c'), long("colors"))]
-    display_colors: bool
+    display_colors: bool,
+
+    /// hide events older than the specified date (hint: use RFC 3339 syntax)
+    #[clap(short('f'), long("from"))]
+    not_before: Option<Rfc3339Datetime>,
+
+    /// hide events newer than the specified date (hint: use RFC 3339 syntax)
+    #[clap(short('t'), long("to"))]
+    not_after: Option<Rfc3339Datetime>
 }
+
+#[derive(Clone)]
+struct Rfc3339Datetime {
+    timestamp: DateTime<Utc>
+}
+
+impl From<&str> for Rfc3339Datetime {
+    fn from(s: &str) -> Self {
+        if let Ok(timestamp) = DateTime::parse_from_rfc3339(s) {
+            return Self{timestamp: timestamp.with_timezone(&chrono::Utc)}
+        }
+        
+        if let Ok(timestamp) = NaiveDateTime::parse_from_str(s, "%Y-%m-%dT%H:%M:%S") {
+            return Self{timestamp: DateTime::<Utc>::from_utc(timestamp, Utc)}
+        }
+
+        if let Ok(timestamp) = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S") {
+            return Self{timestamp: DateTime::<Utc>::from_utc(timestamp, Utc)}
+        }
+
+        if let Ok(timestamp) = NaiveDate::parse_from_str(s, "%Y-%m-%d") {
+            let time = NaiveTime::from_hms_opt(0, 0, 0).unwrap();
+            let timestamp = NaiveDateTime::new(timestamp, time);
+            return Self{timestamp: DateTime::<Utc>::from_utc(timestamp, Utc)}
+        }
+
+        panic!("invalid timestamp: '{s}'");
+    }
+}
+
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
     for f_name in cli.evtx_file.iter() {
         let path = PathBuf::try_from(&f_name)?;
 
-        let parser = EvtxParser::from_path(path)?;
+        let settings = ParserSettings::default().num_threads(0);
+        let parser = EvtxParser::from_path(path)?.with_configuration(settings);
 
         display_results(parser, &cli)?;
     }
@@ -61,6 +101,19 @@ fn display_results<T: Read + Seek>(mut parser: EvtxParser<T>, cli: &Cli) -> Resu
         match result {
             Err(_) => (),
             Ok(record) => {
+
+                if let Some(not_before) = cli.not_before.as_ref() {
+                    if record.timestamp < not_before.timestamp {
+                        continue;
+                    }
+                }
+
+                if let Some(not_after) = cli.not_after.as_ref() {
+                    if record.timestamp < not_after.timestamp {
+                        continue;
+                    }
+                }
+
                 if ! cli.filter_event_ids.is_empty() {
                     let event_id = EventId::try_from(&record)?.into();
                     if ! cli.filter_event_ids.contains(&event_id) {
@@ -145,13 +198,14 @@ fn display_record(record: &SerializedEvtxRecord<Value>, cli: &Cli) -> Result<()>
     let event_id = EventId::try_from(record)?;
     let user_data = record.data["Event"]
         .get("UserData")
-        .map(|user_data| highlight_data(user_data).to_string());
+        .map(|user_data| highlight_data(user_data).to_string())
+        .unwrap_or_else(|| "".to_owned());
 
     let event_data = record.data["Event"]
         .get("EventData")
         .map(|event_data| highlight_data(event_data).to_string())
-        .or(user_data.or(Some("".to_owned())))
-        .unwrap().normal();
+        .unwrap_or(user_data)
+        .normal();
     
     let event_data = event_data.replace("\\u001b", "\u{001b}");
     
