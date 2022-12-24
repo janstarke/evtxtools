@@ -6,7 +6,7 @@ use regex::Regex;
 
 /// Display one or more events from an evtx file
 #[derive(Parser)]
-#[clap(author,version,name="evtxls")]
+#[clap(author,version,about,long_about=None)]
 pub (crate) struct Cli {
     /// Name of the evtx file to read from
     pub (crate) evtx_file: Vec<String>,

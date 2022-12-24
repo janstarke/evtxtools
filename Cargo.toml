@@ -2,7 +2,7 @@
 name = "evtxtools"
 version = "1.6.1"
 edition = "2021"
-author = "Jan Starke <jan.starke@posteo.de>"
+authors = ["Jan Starke <jan.starke@posteo.de>"]
 license = "GPL-3.0"
 description = "tools for the analysis of evtx files"
 repository = "https://github.com/janstarke/evtxtools"
