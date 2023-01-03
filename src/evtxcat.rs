@@ -95,7 +95,7 @@ trait RecordFilter: Sized {
             }
         }
 
-        record_ids.sort();
+        record_ids.sort_unstable();
         (record_ids, records)
     }
 }
