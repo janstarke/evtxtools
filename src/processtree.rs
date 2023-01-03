@@ -276,7 +276,7 @@ impl Cli {
 }
 
 fn main() -> anyhow::Result<()> {
-    let mut cli = Cli::try_parse()?;
+    let mut cli = Cli::parse();
 
     TermLogger::init(
         cli.verbose.log_level_filter(),
