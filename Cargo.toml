@@ -1,6 +1,6 @@
 [package]
 name = "evtxtools"
-version = "1.4.1"
+version = "1.5.0"
 edition = "2021"
 author = "Jan Starke <jan.starke@posteo.de>"
 license = "GPL-3.0"
@@ -29,6 +29,9 @@ path = "src/evtxls.rs"
 name = "evtxanalyze"
 path = "src/evtxanalyze.rs"
 
+[[bin]]
+name = "processtree"
+path = "src/processtree.rs"
 
 [dependencies]
 clap={version="4", features=["derive", "cargo"]}

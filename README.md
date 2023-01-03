@@ -68,3 +68,24 @@ OPTIONS:
     -T, --hide-table         don't display the records in a table format
     -V, --version            Print version information
 ```
+
+# `processtree`
+
+## Usage
+
+```
+reconstructs a process tree, based on Windows audit logs
+
+Usage: processtree [OPTIONS] <EVTX_FILE>
+
+Arguments:
+  <EVTX_FILE>  Name of the evtx file to parse
+
+Options:
+  -U, --username <USERNAME>  display only processes of this user (case insensitive regex search)
+  -F, --format <FORMAT>      [default: json] [possible values: json, markdown]
+  -v, --verbose...           More output per occurrence
+  -q, --quiet...             Less output per occurrence
+  -h, --help                 Print help information
+  -V, --version              Print version information
+```
