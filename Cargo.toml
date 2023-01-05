@@ -29,10 +29,6 @@ path = "src/evtxls.rs"
 name = "evtxanalyze"
 path = "src/evtxanalyze.rs"
 
-[[bin]]
-name = "processtree"
-path = "src/processtree.rs"
-
 [dependencies]
 clap={version="4", features=["derive", "cargo"]}
 clap-verbosity-flag = {version="2.0.0"}
