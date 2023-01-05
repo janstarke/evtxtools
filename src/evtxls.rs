@@ -77,7 +77,6 @@ impl EvtxLs {
     }
 
     fn display_record(&self, record: &SerializedEvtxRecord<Value>) -> Result<()> {
-        let size = record.data.to_string().len();
         let event_id = EventId::try_from(record)?;
         let user_data = record.data["Event"]
             .get("UserData")
@@ -100,24 +99,14 @@ impl EvtxLs {
 
         let output = match self.cli.delimiter {
             None => format!(
-                "{:12} {} {:8} {:5} {}",
+                "{:12} {} {event_id:5} {event_data}",
                 record.event_record_id,
                 record.timestamp.format("%FT%T"),
-                size,
-                event_id,
-                event_data
             ),
             Some(d) => format!(
-                "{}{}{}{}{}{}{}{}{}",
+                "{}{d}{}{d}{event_id}{d}{event_data}",
                 record.event_record_id,
-                d,
                 record.timestamp.format("%FT%T"),
-                d,
-                size,
-                d,
-                event_id,
-                d,
-                event_data
             ),
         }
         .normal();
