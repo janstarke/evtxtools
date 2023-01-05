@@ -6,7 +6,7 @@ use crate::analyze::{pstree::display_pstree, Cli};
 mod analyze;
 
 fn main() -> anyhow::Result<()> {
-    let cli = Cli::try_parse()?;
+    let cli = Cli::parse();
 
     TermLogger::init(
         cli.verbose.log_level_filter(),
