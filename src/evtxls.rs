@@ -98,27 +98,31 @@ impl EvtxLs {
     }
 
     fn display_record(&self, record: &SerializedEvtxRecord<Value>) -> Result<()> {
-        let system_fields = <SerializedEvtxRecord<Value> as FilterBySystemField>::filter_fields(
-            record,
-            &self.cli.display_system_fields[..],
-        )?;
-
-        let line_parts: Vec<String> = if self.cli.delimiter.is_none() {
-            system_fields
-                .iter()
-                .map(|f| f.value_with_padding())
-                .collect()
-        } else {
-            system_fields.iter().map(|f| f.to_string()).collect()
-        };
-        let system_fields = if line_parts.is_empty() {
+        let system_fields = if self.cli.hide_base_fields {
             "".to_owned()
         } else {
-            format!(
-                "{}{}",
-                line_parts.join(&self.cli.delimiter.unwrap_or(' ').to_string()),
-                &self.cli.delimiter.unwrap_or(' ')
-            )
+            let system_fields = <SerializedEvtxRecord<Value> as FilterBySystemField>::filter_fields(
+                record,
+                self.cli.display_system_fields.as_ref()
+            )?;
+
+            let line_parts: Vec<String> = if self.cli.delimiter.is_none() {
+                system_fields
+                    .iter()
+                    .map(|f| f.value_with_padding())
+                    .collect()
+            } else {
+                system_fields.iter().map(|f| f.to_string()).collect()
+            };
+            if line_parts.is_empty() {
+                "".to_owned()
+            } else {
+                format!(
+                    "{}{}",
+                    line_parts.join(&self.cli.delimiter.unwrap_or(' ').to_string()),
+                    &self.cli.delimiter.unwrap_or(' ')
+                )
+            }
         };
 
         let event_data = self
