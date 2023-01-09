@@ -1,8 +1,19 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 
 use super::Rfc3339Datetime;
 use regex::Regex;
 
+#[derive(ValueEnum, Clone)]
+pub (crate) enum SortOrder {
+    /// don't change order, output records as they are stored
+    Storage,
+
+    /// sort by event record id
+    RecordId,
+
+    /// sort by date and time
+    Time
+}
 
 /// Display one or more events from an evtx file
 #[derive(Parser)]
@@ -37,5 +48,9 @@ pub (crate) struct Cli {
 
     /// highlight event data based on this regular expression
     #[clap(short('r'), long("regex"))]
-    pub (crate) highlight: Option<Regex>
+    pub (crate) highlight: Option<Regex>,
+
+    /// sort order
+    #[clap(short('s'), long("sort"), value_enum, default_value_t=SortOrder::Storage)]
+    pub (crate) sort_order: SortOrder
 }

@@ -13,7 +13,7 @@ use serde_json::Value;
 
 mod ls;
 use clap::Parser;
-use ls::{Cli, HighlightedStringBuilder};
+use ls::{Cli, HighlightedStringBuilder, SortOrder};
 
 struct EvtxLs {
     cli: Cli,
@@ -35,16 +35,18 @@ impl EvtxLs {
             let settings = ParserSettings::default().num_threads(0);
             let parser = EvtxParser::from_path(path)?.with_configuration(settings);
 
-            self.display_results(parser)?;
+            self.display_results(parser, self.cli.sort_order.clone())?;
         }
 
         Ok(())
     }
 
-    fn display_results<T: Read + Seek>(&self, mut parser: EvtxParser<T>) -> Result<()> {
+    fn display_results<T: Read + Seek>(&self, mut parser: EvtxParser<T>, sort_oder: SortOrder) -> Result<()> {
         if self.cli.display_colors {
             SHOULD_COLORIZE.set_override(true);
         }
+
+        let mut records = Vec::new();
 
         for result in parser.records_json_value() {
             match result {
@@ -69,10 +71,29 @@ impl EvtxLs {
                         }
                     }
 
-                    self.display_record(&record)?
+                    if matches!(sort_oder, SortOrder::Storage) {
+                        self.display_record(&record)?
+                    } else {
+                        records.push(record);
+                    }
                 }
             }
         }
+
+        match sort_oder {
+            SortOrder::Storage => assert!(records.is_empty()),
+            SortOrder::RecordId => 
+                records.sort_by(|a, b| a.event_record_id.cmp(&b.event_record_id)),
+            SortOrder::Time => 
+                records.sort_by(|a, b| a.timestamp.cmp(&b.timestamp)),
+        }
+
+        if ! records.is_empty() {
+            for record in records.into_iter() {
+                self.display_record(&record)?;
+            }
+        }
+
         Ok(())
     }
 
