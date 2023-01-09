@@ -1,4 +1,4 @@
-use std::fmt::{Display, format};
+use std::fmt::Display;
 
 use anyhow::bail;
 use evtx::SerializedEvtxRecord;
@@ -7,7 +7,7 @@ use serde_json::Value;
 use super::EvtxFieldView;
 
 #[derive(PartialEq, Eq, Clone)]
-pub struct EventId (u16);
+pub struct EventId(u16);
 
 impl TryFrom<&SerializedEvtxRecord<Value>> for EventId {
     type Error = anyhow::Error;

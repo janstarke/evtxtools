@@ -121,34 +121,11 @@ impl EvtxLs {
             )
         };
 
-        let event_data = {
-            let event = &record.data["Event"];
-
-            let user_data = event
-                .get("UserData")
-                .map(|user_data| self.hs_builder.highlight_data(user_data).to_string())
-                .unwrap_or_else(|| "".to_owned());
-
-            let event_data = event
-                .get("EventData")
-                .map(|event_data| self.hs_builder.highlight_data(event_data).to_string())
-                .unwrap_or(user_data)
-                .normal();
-
-            let mut event_data = event_data.replace("\\u001b", "\u{001b}");
-            if event_data == "\"\"" {
-                event_data = "".to_owned();
-            }
-            event_data
-        };
-
-        /*
-        let event_id = if event_id == 4624.into() {
-            event_id.to_string().bright_yellow()
-        } else {
-            event_id.to_string().normal()
-        };
-         */
+        let event_data = self
+            .format_custom_data(record, "UserData")
+            .or_else(|| self.format_custom_data(record, "EventData"))
+            .unwrap_or_else(|| "".to_owned())
+            .replace("\\u001b", "\u{001b}");
 
         let output = match self.cli.delimiter {
             None => format!(
@@ -165,6 +142,23 @@ impl EvtxLs {
         println!("{output}");
 
         Ok(())
+    }
+
+    fn format_custom_data(
+        &self,
+        record: &SerializedEvtxRecord<Value>,
+        tag_name: &str,
+    ) -> Option<String> {
+        // fail if the event has no "Event" content
+        let event = record.data.get("Event").unwrap();
+
+        match event.get(tag_name) {
+            None => None,
+            Some(custom_data) => match custom_data {
+                Value::Null => Some("".to_owned()),
+                v => Some(self.hs_builder.highlight_data(v).to_string())
+            },
+        }
     }
 }
 
