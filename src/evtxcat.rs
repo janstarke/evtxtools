@@ -35,11 +35,11 @@ struct Cli {
     id: Option<u64>,
 
     /// don't display the records in a table format
-    #[clap(short('T'), long("hide-table"))]
-    hide_table: bool,
+    #[clap(short('T'), long("display-table"))]
+    show_table: bool,
 
-    #[clap(value_enum, short('F'), long("format"))]
-    format: Option<OutputFormat>,
+    #[clap(value_enum, short('F'), long("format"), default_value_t = OutputFormat::Xml)]
+    format: OutputFormat,
 }
 
 #[derive(clap::ValueEnum, Clone)]
@@ -140,7 +140,7 @@ trait RecordListFormatter: Sized {
         records: HashMap<u64, SerializedEvtxRecord<Self>>,
         cli: &Cli,
     ) {
-        if cli.hide_table {
+        if !cli.show_table {
             for id in record_ids.into_iter() {
                 let record = &records[&id];
                 println!("{}", Self::format(record));
@@ -183,7 +183,7 @@ fn main() -> Result<()> {
     let parser = EvtxParser::from_path(path)?;
 
     match cli.format {
-        None | Some(OutputFormat::Json) => {
+        OutputFormat::Json => {
             let (record_ids, records) = if let Some(filter_id) = cli.id {
                 serde_json::Value::filter_by_id(parser, filter_id)
             } else {
@@ -193,7 +193,7 @@ fn main() -> Result<()> {
             };
             serde_json::Value::display_results(record_ids, records, &cli);
         }
-        Some(OutputFormat::Xml) => {
+        OutputFormat::Xml => {
             let (record_ids, records) = if let Some(filter_id) = cli.id {
                 String::filter_by_id(parser, filter_id)
             } else {

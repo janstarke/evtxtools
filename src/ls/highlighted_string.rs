@@ -31,6 +31,7 @@ impl HighlightedStringBuilder {
                     )).collect();
                 json!(s)
             },
+            Value::Null => json!(""),
             _ => data.clone(),
         }
     }

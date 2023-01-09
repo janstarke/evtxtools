@@ -1,6 +1,6 @@
 use clap::{Parser, ValueEnum};
 
-use super::Rfc3339Datetime;
+use super::{Rfc3339Datetime, SystemField};
 use regex::Regex;
 
 #[derive(ValueEnum, Clone)]
@@ -52,5 +52,9 @@ pub (crate) struct Cli {
 
     /// sort order
     #[clap(short('s'), long("sort"), value_enum, default_value_t=SortOrder::Storage)]
-    pub (crate) sort_order: SortOrder
+    pub (crate) sort_order: SortOrder,
+
+    /// display fields common to all events. multiple values must be separated by ','
+    #[clap(short('y'), long("system-fields"), value_enum, use_value_delimiter=true, value_delimiter=',')]
+    pub (crate) display_system_fields: Vec<SystemField>
 }

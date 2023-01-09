@@ -13,7 +13,7 @@ use serde_json::Value;
 
 mod ls;
 use clap::Parser;
-use ls::{Cli, HighlightedStringBuilder, SortOrder};
+use ls::{Cli, FilterBySystemField, HighlightedStringBuilder, SortOrder};
 
 struct EvtxLs {
     cli: Cli,
@@ -35,13 +35,13 @@ impl EvtxLs {
             let settings = ParserSettings::default().num_threads(0);
             let parser = EvtxParser::from_path(path)?.with_configuration(settings);
 
-            self.display_results(parser, self.cli.sort_order.clone())?;
+            self.display_results(parser)?;
         }
 
         Ok(())
     }
 
-    fn display_results<T: Read + Seek>(&self, mut parser: EvtxParser<T>, sort_oder: SortOrder) -> Result<()> {
+    fn display_results<T: Read + Seek>(&self, mut parser: EvtxParser<T>) -> Result<()> {
         if self.cli.display_colors {
             SHOULD_COLORIZE.set_override(true);
         }
@@ -71,7 +71,7 @@ impl EvtxLs {
                         }
                     }
 
-                    if matches!(sort_oder, SortOrder::Storage) {
+                    if matches!(self.cli.sort_order, SortOrder::Storage) {
                         self.display_record(&record)?
                     } else {
                         records.push(record);
@@ -80,15 +80,15 @@ impl EvtxLs {
             }
         }
 
-        match sort_oder {
+        match self.cli.sort_order {
             SortOrder::Storage => assert!(records.is_empty()),
-            SortOrder::RecordId => 
-                records.sort_by(|a, b| a.event_record_id.cmp(&b.event_record_id)),
-            SortOrder::Time => 
-                records.sort_by(|a, b| a.timestamp.cmp(&b.timestamp)),
+            SortOrder::RecordId => {
+                records.sort_by(|a, b| a.event_record_id.cmp(&b.event_record_id))
+            }
+            SortOrder::Time => records.sort_by(|a, b| a.timestamp.cmp(&b.timestamp)),
         }
 
-        if ! records.is_empty() {
+        if !records.is_empty() {
             for record in records.into_iter() {
                 self.display_record(&record)?;
             }
@@ -98,42 +98,72 @@ impl EvtxLs {
     }
 
     fn display_record(&self, record: &SerializedEvtxRecord<Value>) -> Result<()> {
-        let event_id = EventId::try_from(record)?;
-        let user_data = record.data["Event"]
-            .get("UserData")
-            .map(|user_data| self.hs_builder.highlight_data(user_data).to_string())
-            .unwrap_or_else(|| "".to_owned());
+        let system_fields = <SerializedEvtxRecord<Value> as FilterBySystemField>::filter_fields(
+            record,
+            &self.cli.display_system_fields[..],
+        )?;
 
-        let event_data = record.data["Event"]
-            .get("EventData")
-            .map(|event_data| self.hs_builder.highlight_data(event_data).to_string())
-            .unwrap_or(user_data)
-            .normal();
+        let line_parts: Vec<String> = if self.cli.delimiter.is_none() {
+            system_fields
+                .iter()
+                .map(|f| f.value_with_padding())
+                .collect()
+        } else {
+            system_fields.iter().map(|f| f.to_string()).collect()
+        };
+        let system_fields = if line_parts.is_empty() {
+            "".to_owned()
+        } else {
+            format!(
+                "{}{}",
+                line_parts.join(&self.cli.delimiter.unwrap_or(' ').to_string()),
+                &self.cli.delimiter.unwrap_or(' ')
+            )
+        };
 
-        let event_data = event_data.replace("\\u001b", "\u{001b}");
+        let event_data = {
+            let event = &record.data["Event"];
 
+            let user_data = event
+                .get("UserData")
+                .map(|user_data| self.hs_builder.highlight_data(user_data).to_string())
+                .unwrap_or_else(|| "".to_owned());
+
+            let event_data = event
+                .get("EventData")
+                .map(|event_data| self.hs_builder.highlight_data(event_data).to_string())
+                .unwrap_or(user_data)
+                .normal();
+
+            let mut event_data = event_data.replace("\\u001b", "\u{001b}");
+            if event_data == "\"\"" {
+                event_data = "".to_owned();
+            }
+            event_data
+        };
+
+        /*
         let event_id = if event_id == 4624.into() {
             event_id.to_string().bright_yellow()
         } else {
             event_id.to_string().normal()
         };
+         */
 
         let output = match self.cli.delimiter {
             None => format!(
-                "{:12} {} {event_id:5} {event_data}",
-                record.event_record_id,
-                record.timestamp.format("%FT%T"),
+                "{} {system_fields}{event_data} {event_data}",
+                record.timestamp.format("%FT%T%.3f")
             ),
             Some(d) => format!(
-                "{}{d}{}{d}{event_id}{d}{event_data}",
-                record.event_record_id,
-                record.timestamp.format("%FT%T"),
+                "{}{d}{system_fields}{event_data}{d}{event_data}",
+                record.timestamp.to_rfc3339()
             ),
         }
         .normal();
 
         println!("{output}");
-        
+
         Ok(())
     }
 }
