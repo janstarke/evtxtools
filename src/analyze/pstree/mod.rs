@@ -111,6 +111,18 @@ pub(crate) fn display_pstree(cli: &Cli, username: &Option<String>) -> anyhow::Re
                 .collect();
             display_markdown(&root_processes, 0);
         }
+
+        Format::LaTeX => {let root_processes: BTreeMap<_, _> = events
+            .values()
+            .filter(|e| e.borrow().is_root)
+            .map(|e| {
+                let timestamp = e.borrow().timestamp;
+                let proc = Rc::downgrade(e);
+                (timestamp, proc)
+            })
+            .collect();
+            display_latex(&root_processes);
+        }
     }
 
     Ok(())
@@ -122,5 +134,23 @@ fn display_markdown(procs: &BTreeMap<DateTime<Utc>, Weak<RefCell<Process>>>, ind
             println!("{}- {}", " ".repeat(indent), proc.borrow());
             display_markdown(&proc.borrow().children, indent + 2);
         }
+    }
+}
+
+fn display_latex(procs: &BTreeMap<DateTime<Utc>, Weak<RefCell<Process>>>) {
+    if ! procs.is_empty() {
+        println!("\\begin{{enumerate}}");
+        for proc in procs.values() {
+            if let Some(proc) = proc.upgrade() {
+                let p = proc.borrow();
+                let pid = &p.process_id;
+                let filename = &p.new_process_name;
+                let timestamp = p.timestamp.format("%FT%T");
+                let user = p.subject_user_name.replace("_", "\\_");
+                println!("\\item[\\texttt{{{pid}}}] \\filename{{{filename}}}, gestartet: \\ts{{{timestamp}}}, Benutzer: \\username{{{user}}}",);
+                display_latex(&proc.borrow().children);
+            }
+        }
+        println!("\\end{{enumerate}}");
     }
 }
