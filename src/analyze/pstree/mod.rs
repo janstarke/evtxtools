@@ -143,10 +143,10 @@ fn display_latex(procs: &BTreeMap<DateTime<Utc>, Weak<RefCell<Process>>>) {
         for proc in procs.values() {
             if let Some(proc) = proc.upgrade() {
                 let p = proc.borrow();
-                let pid = &p.process_id;
+                let pid = &p.new_process_id;
                 let filename = &p.new_process_name;
                 let timestamp = p.timestamp.format("%FT%T");
-                let user = p.subject_user_name.replace("_", "\\_");
+                let user = p.subject_user_name.replace('_', "\\_").replace('$', "\\$");
                 println!("\\item[\\texttt{{{pid}}}] \\filename{{{filename}}}, gestartet: \\ts{{{timestamp}}}, Benutzer: \\username{{{user}}}",);
                 display_latex(&proc.borrow().children);
             }

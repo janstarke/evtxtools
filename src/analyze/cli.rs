@@ -4,6 +4,8 @@ use clap::{ValueEnum, Parser, Subcommand};
 pub enum Format {
     Json,
     Markdown,
+
+    #[clap(name="latex")]
     LaTeX
 }
 
