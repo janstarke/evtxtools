@@ -6,7 +6,9 @@ pub enum Format {
     Markdown,
 
     #[clap(name="latex")]
-    LaTeX
+    LaTeX,
+
+    Dot
 }
 
 #[derive(Subcommand)]

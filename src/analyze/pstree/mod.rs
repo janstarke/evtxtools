@@ -123,6 +123,21 @@ pub(crate) fn display_pstree(cli: &Cli, username: &Option<String>) -> anyhow::Re
             .collect();
             display_latex(&root_processes);
         }
+
+        Format::Dot => {let root_processes: BTreeMap<_, _> = events
+            .values()
+            .filter(|e| e.borrow().is_root)
+            .map(|e| {
+                let timestamp = e.borrow().timestamp;
+                let proc = Rc::downgrade(e);
+                (timestamp, proc)
+            })
+            .collect();
+            println!("digraph {{");
+            println!("rankdir=\"LR\";");
+            display_dot(&root_processes);
+            println!("}}");
+        }
     }
 
     Ok(())
@@ -153,4 +168,19 @@ fn display_latex(procs: &BTreeMap<DateTime<Utc>, Weak<RefCell<Process>>>) {
         }
         println!("\\end{{enumerate}}");
     }
+}
+
+fn display_dot(procs: &BTreeMap<DateTime<Utc>, Weak<RefCell<Process>>>) {
+    for proc in procs.values() {
+        if let Some(proc) = proc.upgrade() {
+            let p = proc.borrow();
+            dot_display_process(&p);
+            println!("p{} -> p{} [label=\"{}\"]", p.process_id, p.new_process_id, p.timestamp.format("%FT%T"));
+            display_dot(&proc.borrow().children);
+        }
+    }
+}
+
+fn dot_display_process(process: &Process) {
+    println!("p{} [label=<<FONT FACE=\"Courier\">{}</FONT>>, shape=\"box\"];", process.new_process_id, process.new_process_name.replace('\\', "\\\\"));
 }

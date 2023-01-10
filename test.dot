@@ -1,0 +1,275 @@
+digraph {
+rankdir="LR";
+p13848 [label=<<FONT FACE="Courier">C:\\Program Files\\Snow Software\\Inventory\\Agent\\snowagent.exe</FONT>>, shape="box"];
+p6244 -> p13848 [label="2022-12-07T23:02:22"]
+p19332 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p13848 -> p19332 [label="2022-12-07T23:02:22"]
+p33356 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\TSTheme.exe</FONT>>, shape="box"];
+p2148 -> p33356 [label="2022-12-07T23:02:22"]
+p39512 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\SearchProtocolHost.exe</FONT>>, shape="box"];
+p5068 -> p39512 [label="2022-12-07T23:02:22"]
+p29092 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\sihost.exe</FONT>>, shape="box"];
+p3776 -> p29092 [label="2022-12-07T23:02:22"]
+p21592 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\svchost.exe</FONT>>, shape="box"];
+p2016 -> p21592 [label="2022-12-07T23:02:22"]
+p31720 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\svchost.exe</FONT>>, shape="box"];
+p2016 -> p31720 [label="2022-12-07T23:02:22"]
+p30572 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\taskhostw.exe</FONT>>, shape="box"];
+p3144 -> p30572 [label="2022-12-07T23:02:22"]
+p35872 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\msoia.exe</FONT>>, shape="box"];
+p3144 -> p35872 [label="2022-12-07T23:02:22"]
+p32800 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\taskhostw.exe</FONT>>, shape="box"];
+p3144 -> p32800 [label="2022-12-07T23:02:22"]
+p11892 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\taskhostw.exe</FONT>>, shape="box"];
+p3144 -> p11892 [label="2022-12-07T23:02:23"]
+p22548 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\gpscript.exe</FONT>>, shape="box"];
+p2972 -> p22548 [label="2022-12-07T23:02:23"]
+p25876 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</FONT>>, shape="box"];
+p22548 -> p25876 [label="2022-12-07T23:02:23"]
+p39608 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p25876 -> p39608 [label="2022-12-07T23:02:23"]
+p23436 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</FONT>>, shape="box"];
+p22548 -> p23436 [label="2022-12-07T23:02:24"]
+p31904 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p23436 -> p31904 [label="2022-12-07T23:02:24"]
+p30396 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</FONT>>, shape="box"];
+p22548 -> p30396 [label="2022-12-07T23:02:24"]
+p16972 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p30396 -> p16972 [label="2022-12-07T23:02:24"]
+p23952 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</FONT>>, shape="box"];
+p22548 -> p23952 [label="2022-12-07T23:02:25"]
+p11328 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p23952 -> p11328 [label="2022-12-07T23:02:25"]
+p34136 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</FONT>>, shape="box"];
+p22548 -> p34136 [label="2022-12-07T23:02:26"]
+p7092 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p34136 -> p7092 [label="2022-12-07T23:02:26"]
+p23496 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</FONT>>, shape="box"];
+p22548 -> p23496 [label="2022-12-07T23:02:26"]
+p40100 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p23496 -> p40100 [label="2022-12-07T23:02:26"]
+p3596 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\userinit.exe</FONT>>, shape="box"];
+p38976 -> p3596 [label="2022-12-07T23:02:23"]
+p16264 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\cmd.exe</FONT>>, shape="box"];
+p3596 -> p16264 [label="2022-12-07T23:02:23"]
+p8436 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p16264 -> p8436 [label="2022-12-07T23:02:23"]
+p21752 [label=<<FONT FACE="Courier">C:\\Windows\\application compatibility scripts\\acregl.exe</FONT>>, shape="box"];
+p16264 -> p21752 [label="2022-12-07T23:02:23"]
+p13160 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\HDX\\bin\\cmstart.exe</FONT>>, shape="box"];
+p3596 -> p13160 [label="2022-12-07T23:02:23"]
+p29560 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\HDX\\bin\\WfShell.exe</FONT>>, shape="box"];
+p13160 -> p29560 [label="2022-12-07T23:02:23"]
+p25420 [label=<<FONT FACE="Courier">C:\\Program Files\\Citrix\\Virtual Smart Card\\Citrix.Authentication.VirtualSmartcard.Launcher.exe</FONT>>, shape="box"];
+p29560 -> p25420 [label="2022-12-07T23:02:24"]
+p27928 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\HDX\\bin\\CtxMtHost.exe</FONT>>, shape="box"];
+p29560 -> p27928 [label="2022-12-07T23:02:24"]
+p35748 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\HDX\\bin\\CtxMtHost.exe</FONT>>, shape="box"];
+p29560 -> p35748 [label="2022-12-07T23:02:24"]
+p15464 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\cmd.exe</FONT>>, shape="box"];
+p3596 -> p15464 [label="2022-12-07T23:02:24"]
+p31400 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p15464 -> p31400 [label="2022-12-07T23:02:24"]
+p15148 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\HDX\\bin\\Connection Quality Indicator\\Citrix.CQI.exe</FONT>>, shape="box"];
+p15464 -> p15148 [label="2022-12-07T23:02:24"]
+p9444 [label=<<FONT FACE="Courier">C:\\Windows\\explorer.exe</FONT>>, shape="box"];
+p3596 -> p9444 [label="2022-12-07T23:02:24"]
+p9528 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\SecurityHealthSystray.exe</FONT>>, shape="box"];
+p9444 -> p9528 [label="2022-12-07T23:02:38"]
+p19780 [label=<<FONT FACE="Courier">C:\\Program Files\\Greenshot\\Greenshot.exe</FONT>>, shape="box"];
+p9444 -> p19780 [label="2022-12-07T23:02:39"]
+p10236 [label=<<FONT FACE="Courier">C:\\Program Files\\Citrix\\Virtual Smart Card\\Citrix.Authentication.VirtualSmartcard.Launcher.exe</FONT>>, shape="box"];
+p9444 -> p10236 [label="2022-12-07T23:02:39"]
+p8716 [label=<<FONT FACE="Courier">C:\\Program Files\\PDF24\\pdf24.exe</FONT>>, shape="box"];
+p9444 -> p8716 [label="2022-12-07T23:02:40"]
+p7884 [label=<<FONT FACE="Courier">C:\\Program Files\\Microsoft OneDrive\\OneDrive.exe</FONT>>, shape="box"];
+p9444 -> p7884 [label="2022-12-07T23:02:40"]
+p34888 [label=<<FONT FACE="Courier">C:\\Program Files\\Microsoft OneDrive\\22.227.1030.0001\\Microsoft.SharePoint.exe</FONT>>, shape="box"];
+p7884 -> p34888 [label="2022-12-07T23:02:41"]
+p27796 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</FONT>>, shape="box"];
+p9444 -> p27796 [label="2022-12-07T23:02:43"]
+p39504 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p27796 -> p39504 [label="2022-12-07T23:02:43"]
+p23828 [label=<<FONT FACE="Courier">C:\\Windows\\SysWOW64\\runonce.exe</FONT>>, shape="box"];
+p9444 -> p23828 [label="2022-12-07T23:02:44"]
+p24584 [label=<<FONT FACE="Courier">C:\\Program Files\\KeePass Password Safe 2\\KeePass.exe</FONT>>, shape="box"];
+p23828 -> p24584 [label="2022-12-07T23:02:44"]
+p24540 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\Citrix WorkSpace 2210\\InstallHelper.exe</FONT>>, shape="box"];
+p23828 -> p24540 [label="2022-12-07T23:02:44"]
+p17612 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\IBM\\Client Access\\cwbsvstr.exe</FONT>>, shape="box"];
+p23828 -> p17612 [label="2022-12-07T23:02:44"]
+p38380 [label=<<FONT FACE="Courier">C:\\Windows\\SysWOW64\\cwbunplp.exe</FONT>>, shape="box"];
+p17612 -> p38380 [label="2022-12-07T23:02:45"]
+p18188 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p38380 -> p18188 [label="2022-12-07T23:02:45"]
+p12004 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Alcatel-Lucent Enterprise\\IP Desktop Softphone\\IpDesktopSoftphone.exe</FONT>>, shape="box"];
+p23828 -> p12004 [label="2022-12-07T23:02:45"]
+p22444 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\Receiver\\AnalyticsSrv.exe</FONT>>, shape="box"];
+p23828 -> p22444 [label="2022-12-07T23:02:45"]
+p30348 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\concentr.exe</FONT>>, shape="box"];
+p23828 -> p30348 [label="2022-12-07T23:02:45"]
+p32660 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Foxit Software\\Foxit PDF Reader\\reader_sl.exe</FONT>>, shape="box"];
+p23828 -> p32660 [label="2022-12-07T23:02:46"]
+p38240 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\SelfServicePlugin\\SelfServicePlugin.exe</FONT>>, shape="box"];
+p9444 -> p38240 [label="2022-12-07T23:02:44"]
+p16884 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\Receiver\\Receiver.exe</FONT>>, shape="box"];
+p38240 -> p16884 [label="2022-12-07T23:02:44"]
+p892 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\Receiver\\FeatureFlag\\CWAFeatureFlagUpdater.exe</FONT>>, shape="box"];
+p16884 -> p892 [label="2022-12-07T23:02:45"]
+p12508 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p892 -> p12508 [label="2022-12-07T23:02:45"]
+p5536 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\SelfServicePlugin\\SelfServicePlugin.exe</FONT>>, shape="box"];
+p16884 -> p5536 [label="2022-12-07T23:02:45"]
+p38404 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\SelfServicePlugin\\SelfServicePlugin.exe</FONT>>, shape="box"];
+p9444 -> p38404 [label="2022-12-07T23:02:45"]
+p244 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\ctfmon.exe</FONT>>, shape="box"];
+p9444 -> p244 [label="2022-12-07T23:02:45"]
+p32252 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\ctfmon.exe</FONT>>, shape="box"];
+p9444 -> p32252 [label="2022-12-07T23:02:46"]
+p35280 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</FONT>>, shape="box"];
+p9444 -> p35280 [label="2022-12-07T23:02:49"]
+p30956 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p35280 -> p30956 [label="2022-12-07T23:02:49"]
+p17348 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\net.exe</FONT>>, shape="box"];
+p35280 -> p17348 [label="2022-12-07T23:03:10"]
+p23036 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\net1.exe</FONT>>, shape="box"];
+p17348 -> p23036 [label="2022-12-07T23:03:10"]
+p38188 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell_ise.exe</FONT>>, shape="box"];
+p35280 -> p38188 [label="2022-12-07T23:03:18"]
+p20284 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\conhost.exe</FONT>>, shape="box"];
+p38188 -> p20284 [label="2022-12-07T23:07:22"]
+p34216 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\PING.EXE</FONT>>, shape="box"];
+p38188 -> p34216 [label="2022-12-07T23:07:22"]
+p34556 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\PING.EXE</FONT>>, shape="box"];
+p38188 -> p34556 [label="2022-12-07T23:07:49"]
+p31016 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\PING.EXE</FONT>>, shape="box"];
+p38188 -> p31016 [label="2022-12-07T23:07:59"]
+p34676 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\net.exe</FONT>>, shape="box"];
+p35280 -> p34676 [label="2022-12-07T23:05:31"]
+p31580 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\net1.exe</FONT>>, shape="box"];
+p34676 -> p31580 [label="2022-12-07T23:05:31"]
+p39780 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\net.exe</FONT>>, shape="box"];
+p35280 -> p39780 [label="2022-12-07T23:06:10"]
+p20420 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\net1.exe</FONT>>, shape="box"];
+p39780 -> p20420 [label="2022-12-07T23:06:10"]
+p21108 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\nltest.exe</FONT>>, shape="box"];
+p35280 -> p21108 [label="2022-12-07T23:06:31"]
+p25748 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\mstsc.exe</FONT>>, shape="box"];
+p9444 -> p25748 [label="2022-12-07T23:08:15"]
+p39408 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p9444 -> p39408 [label="2022-12-07T23:10:40"]
+p33848 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p33848 [label="2022-12-07T23:10:40"]
+p25236 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p25236 [label="2022-12-07T23:10:41"]
+p37424 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p37424 [label="2022-12-07T23:10:41"]
+p18836 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p18836 [label="2022-12-07T23:10:41"]
+p38364 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p38364 [label="2022-12-07T23:10:41"]
+p24104 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p24104 [label="2022-12-07T23:10:41"]
+p19516 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p19516 [label="2022-12-07T23:10:42"]
+p36232 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p36232 [label="2022-12-07T23:10:45"]
+p2472 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p2472 [label="2022-12-07T23:10:45"]
+p20168 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p20168 [label="2022-12-07T23:10:45"]
+p29788 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p29788 [label="2022-12-07T23:10:49"]
+p17096 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p17096 [label="2022-12-07T23:10:55"]
+p28368 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p28368 [label="2022-12-07T23:10:56"]
+p21704 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p21704 [label="2022-12-07T23:10:56"]
+p24580 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p24580 [label="2022-12-07T23:10:57"]
+p12256 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p12256 [label="2022-12-07T23:10:57"]
+p36908 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p36908 [label="2022-12-07T23:10:58"]
+p32900 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p32900 [label="2022-12-07T23:11:01"]
+p11840 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe</FONT>>, shape="box"];
+p39408 -> p11840 [label="2022-12-07T23:11:09"]
+p30116 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\mstsc.exe</FONT>>, shape="box"];
+p9444 -> p30116 [label="2022-12-07T23:15:04"]
+p26160 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\mstsc.exe</FONT>>, shape="box"];
+p9444 -> p26160 [label="2022-12-07T23:15:12"]
+p35616 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\ctfmon.exe</FONT>>, shape="box"];
+p8920 -> p35616 [label="2022-12-07T23:02:24"]
+p39376 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\rundll32.exe</FONT>>, shape="box"];
+p30252 -> p39376 [label="2022-12-07T23:02:25"]
+p27884 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\dllhost.exe</FONT>>, shape="box"];
+p2148 -> p27884 [label="2022-12-07T23:02:27"]
+p19808 [label=<<FONT FACE="Courier">C:\\Windows\\SystemApps\\ShellExperienceHost_cw5n1h2txyewy\\ShellExperienceHost.exe</FONT>>, shape="box"];
+p2148 -> p19808 [label="2022-12-07T23:02:27"]
+p6044 [label=<<FONT FACE="Courier">C:\\Windows\\SystemApps\\Microsoft.Windows.Cortana_cw5n1h2txyewy\\SearchUI.exe</FONT>>, shape="box"];
+p2148 -> p6044 [label="2022-12-07T23:02:27"]
+p21480 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\RuntimeBroker.exe</FONT>>, shape="box"];
+p2148 -> p21480 [label="2022-12-07T23:02:28"]
+p37800 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\RuntimeBroker.exe</FONT>>, shape="box"];
+p2148 -> p37800 [label="2022-12-07T23:02:28"]
+p27536 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\backgroundTaskHost.exe</FONT>>, shape="box"];
+p2148 -> p27536 [label="2022-12-07T23:02:28"]
+p40704 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\backgroundTaskHost.exe</FONT>>, shape="box"];
+p2148 -> p40704 [label="2022-12-07T23:02:28"]
+p26316 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\mobsync.exe</FONT>>, shape="box"];
+p2148 -> p26316 [label="2022-12-07T23:02:31"]
+p25288 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\taskhostw.exe</FONT>>, shape="box"];
+p3144 -> p25288 [label="2022-12-07T23:02:36"]
+p39984 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\dllhost.exe</FONT>>, shape="box"];
+p2148 -> p39984 [label="2022-12-07T23:02:36"]
+p20912 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\dllhost.exe</FONT>>, shape="box"];
+p2148 -> p20912 [label="2022-12-07T23:02:36"]
+p6944 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\dllhost.exe</FONT>>, shape="box"];
+p2148 -> p6944 [label="2022-12-07T23:02:37"]
+p35808 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\smartscreen.exe</FONT>>, shape="box"];
+p2148 -> p35808 [label="2022-12-07T23:02:38"]
+p664 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\RuntimeBroker.exe</FONT>>, shape="box"];
+p2148 -> p664 [label="2022-12-07T23:02:40"]
+p16736 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\backgroundTaskHost.exe</FONT>>, shape="box"];
+p2148 -> p16736 [label="2022-12-07T23:02:42"]
+p18728 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\backgroundTaskHost.exe</FONT>>, shape="box"];
+p2148 -> p18728 [label="2022-12-07T23:02:43"]
+p23732 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\backgroundTaskHost.exe</FONT>>, shape="box"];
+p2148 -> p23732 [label="2022-12-07T23:02:43"]
+p27724 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\HDX\\bin\\VdaRedirector.exe</FONT>>, shape="box"];
+p2148 -> p27724 [label="2022-12-07T23:02:43"]
+p22612 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\backgroundTaskHost.exe</FONT>>, shape="box"];
+p2148 -> p22612 [label="2022-12-07T23:02:43"]
+p20920 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\RuntimeBroker.exe</FONT>>, shape="box"];
+p2148 -> p20920 [label="2022-12-07T23:02:43"]
+p17084 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\wfcrun32.exe</FONT>>, shape="box"];
+p2148 -> p17084 [label="2022-12-07T23:02:46"]
+p8924 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\wfcrun32.exe</FONT>>, shape="box"];
+p31004 -> p8924 [label="2022-12-07T23:02:46"]
+p31508 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\concentr.exe</FONT>>, shape="box"];
+p8924 -> p31508 [label="2022-12-07T23:02:46"]
+p16436 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\dllhost.exe</FONT>>, shape="box"];
+p2148 -> p16436 [label="2022-12-07T23:02:51"]
+p33856 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\rundll32.exe</FONT>>, shape="box"];
+p30252 -> p33856 [label="2022-12-07T23:02:57"]
+p39652 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\dllhost.exe</FONT>>, shape="box"];
+p2148 -> p39652 [label="2022-12-07T23:03:23"]
+p19992 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\msoia.exe</FONT>>, shape="box"];
+p3144 -> p19992 [label="2022-12-07T23:03:35"]
+p18408 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\AuthManager\\AuthManSvr.exe</FONT>>, shape="box"];
+p2148 -> p18408 [label="2022-12-07T23:07:45"]
+p5344 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Citrix\\ICA Client\\AuthManager\\AuthManSvr.exe</FONT>>, shape="box"];
+p31004 -> p5344 [label="2022-12-07T23:07:45"]
+p19112 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\CredentialUIBroker.exe</FONT>>, shape="box"];
+p2148 -> p19112 [label="2022-12-07T23:08:18"]
+p12564 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\CredentialUIBroker.exe</FONT>>, shape="box"];
+p2148 -> p12564 [label="2022-12-07T23:15:13"]
+p14940 [label=<<FONT FACE="Courier">C:\\Windows\\System32\\taskhostw.exe</FONT>>, shape="box"];
+p3144 -> p14940 [label="2022-12-07T23:17:23"]
+p2248 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\SDXHelper.exe</FONT>>, shape="box"];
+p3144 -> p2248 [label="2022-12-07T23:17:23"]
+p2816 [label=<<FONT FACE="Courier">C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\SDXHelper.exe</FONT>>, shape="box"];
+p2148 -> p2816 [label="2022-12-07T23:17:23"]
+}
