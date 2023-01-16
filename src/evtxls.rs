@@ -29,19 +29,35 @@ impl EvtxLs {
     }
 
     fn run(self) -> Result<()> {
-        for f_name in self.cli.evtx_file.iter() {
+        let mut records = Vec::new();
+
+        for f_name in self.cli.evtx_files.iter() {
             let path = PathBuf::try_from(&f_name)?;
 
             let settings = ParserSettings::default().num_threads(0);
             let parser = EvtxParser::from_path(path)?.with_configuration(settings);
 
-            self.display_results(parser)?;
+            records.extend(self.read_records(parser)?);
+        }
+
+        match self.cli.sort_order {
+            SortOrder::Storage => assert!(records.is_empty()),
+            SortOrder::RecordId => {
+                records.sort_by(|a, b| a.event_record_id.cmp(&b.event_record_id))
+            }
+            SortOrder::Time => records.sort_by(|a, b| a.timestamp.cmp(&b.timestamp)),
+        }
+
+        if !records.is_empty() {
+            for record in records.into_iter() {
+                self.display_record(&record)?;
+            }
         }
 
         Ok(())
     }
 
-    fn display_results<T: Read + Seek>(&self, mut parser: EvtxParser<T>) -> Result<()> {
+    fn read_records<T: Read + Seek>(&self, mut parser: EvtxParser<T>) -> Result<Vec<SerializedEvtxRecord<Value>>> {
         if self.cli.display_colors {
             SHOULD_COLORIZE.set_override(true);
         }
@@ -64,9 +80,16 @@ impl EvtxLs {
                         }
                     }
 
-                    if !self.cli.filter_event_ids.is_empty() {
+                    if !self.cli.included_event_ids.is_empty() {
                         let event_id = EventId::try_from(&record)?.into();
-                        if !self.cli.filter_event_ids.contains(&event_id) {
+                        if !self.cli.included_event_ids.contains(&event_id) {
+                            continue;
+                        }
+                    }
+
+                    if !self.cli.excluded_event_ids.is_empty() {
+                        let event_id = EventId::try_from(&record)?.into();
+                        if self.cli.excluded_event_ids.contains(&event_id) {
                             continue;
                         }
                     }
@@ -80,21 +103,7 @@ impl EvtxLs {
             }
         }
 
-        match self.cli.sort_order {
-            SortOrder::Storage => assert!(records.is_empty()),
-            SortOrder::RecordId => {
-                records.sort_by(|a, b| a.event_record_id.cmp(&b.event_record_id))
-            }
-            SortOrder::Time => records.sort_by(|a, b| a.timestamp.cmp(&b.timestamp)),
-        }
-
-        if !records.is_empty() {
-            for record in records.into_iter() {
-                self.display_record(&record)?;
-            }
-        }
-
-        Ok(())
+        Ok(records)
     }
 
     fn display_record(&self, record: &SerializedEvtxRecord<Value>) -> Result<()> {

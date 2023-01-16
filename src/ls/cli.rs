@@ -19,21 +19,32 @@ pub(crate) enum SortOrder {
 #[derive(Parser)]
 #[clap(author,version,about,long_about=None)]
 pub(crate) struct Cli {
-    /// Name of the evtx file to read from
-    pub(crate) evtx_file: Vec<String>,
+    /// Name of the evtx files to read from
+    pub(crate) evtx_files: Vec<String>,
 
     /// use this delimiter instead of generating fixed space columns
     #[clap(short('d'), long("delimiter"))]
     pub(crate) delimiter: Option<char>,
 
-    /// List events with only the specified event ids
+    /// List events with only the specified event ids, separated by ','
     #[clap(
         short('i'),
-        long("event-id"),
+        long("include"),
         use_value_delimiter = true,
         value_delimiter = ','
     )]
-    pub(crate) filter_event_ids: Vec<u16>,
+    pub(crate) included_event_ids: Vec<u16>,
+
+
+    /// Exclude events with the specified event ids, separated by ','
+    #[clap(
+        short('x'),
+        long("exclude"),
+        use_value_delimiter = true,
+        value_delimiter = ','
+    )]
+    pub(crate) excluded_event_ids: Vec<u16>,
+
 
     /// highlight interesting content using colors
     #[clap(short('c'), long("colors"))]
