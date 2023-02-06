@@ -33,3 +33,9 @@ impl<'a> EvtxFieldView for ActivityId<'a> {
         self.0.as_str().unwrap_or("                                    ").to_owned()
     }
 }
+
+impl<'a> ActivityId<'a> {
+    pub fn value(&self) -> &Value {
+        &self.0
+    }
+}

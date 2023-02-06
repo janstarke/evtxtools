@@ -6,7 +6,7 @@ use serde_json::Value;
 
 use super::EvtxFieldView;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct EventId(u16);
 
 impl TryFrom<&SerializedEvtxRecord<Value>> for EventId {
@@ -26,6 +26,12 @@ impl TryFrom<&SerializedEvtxRecord<Value>> for EventId {
         } else {
             bail!("event id cannot be converted to u16: {event_id}")
         }
+    }
+}
+
+impl EventId {
+    pub fn value(&self) -> u16 {
+        self.0
     }
 }
 

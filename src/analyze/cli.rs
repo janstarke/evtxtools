@@ -1,4 +1,8 @@
+use std::path::PathBuf;
+
 use clap::{ValueEnum, Parser, Subcommand};
+
+use super::sessions::SessionStore;
 
 #[derive(ValueEnum, Clone)]
 pub enum Format {
@@ -19,6 +23,11 @@ pub enum Command {
         /// display only processes of this user (case insensitive regex search)
         #[clap(short('U'), long("username"))]
         username: Option<String>,
+    },
+
+    #[clap(name="sessions")]
+    Sessions {
+
     }
 }
 
@@ -35,4 +44,12 @@ pub (crate) struct Cli {
 
     #[command(flatten)]
     pub (crate) verbose: clap_verbosity_flag::Verbosity,
+}
+
+impl Cli {
+    pub fn display_sessions(&self) -> anyhow::Result<()> {
+        let evtx_files = vec![PathBuf::from(&self.evtx_file)];
+        let sessions = SessionStore::try_from(evtx_files)?;
+        Ok(())
+    }
 }

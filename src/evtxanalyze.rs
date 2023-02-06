@@ -4,6 +4,7 @@ use simplelog::{ColorChoice, Config, TermLogger, TerminalMode};
 use crate::analyze::{pstree::display_pstree, Cli};
 
 mod analyze;
+mod data;
 
 fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
@@ -16,6 +17,8 @@ fn main() -> anyhow::Result<()> {
     )?;
 
     match &cli.command {
+        //TODO: move `display_pstree` into `impl Cli`
         analyze::Command::PsTree { username } => display_pstree(&cli, username),
+        analyze::Command::Sessions { } => cli.display_sessions(),
     }
 }
