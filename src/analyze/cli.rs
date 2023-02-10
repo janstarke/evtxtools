@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, io::stdout};
 
 use clap::{ValueEnum, Parser, Subcommand};
 
@@ -50,6 +50,16 @@ impl Cli {
     pub fn display_sessions(&self) -> anyhow::Result<()> {
         let evtx_files = vec![PathBuf::from(&self.evtx_file)];
         let sessions = SessionStore::try_from(evtx_files)?;
+
+        for session in sessions {
+            match self.format {
+                Format::Json => session.into_json(&mut stdout().lock())?,
+                Format::Markdown => println!("{}", session.into_markdown()),
+                Format::LaTeX => println!("{}", session.into_latex()),
+                Format::Dot => println!("{}", session.into_dot()),
+            }
+            println!();
+        }
         Ok(())
     }
 }

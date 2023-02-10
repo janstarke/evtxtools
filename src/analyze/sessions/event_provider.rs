@@ -34,7 +34,8 @@ impl TryFrom<&SerializedEvtxRecord<Value>> for EventProvider {
 
     fn try_from(record: &SerializedEvtxRecord<Value>) -> Result<Self, Self::Error> {
         let provider_name =
-            &record.data["Event"]["System"]["Provider"]["#attributes"]["Name"].to_string()[..];
+            record.data["Event"]["System"]["Provider"]["#attributes"]["Name"].as_str().unwrap();
+            
         Ok(match provider_name {
             "Microsoft-Windows-Terminal-Services-RemoteConnectionManager" => {
                 EventProvider::TerminalServicesRemoteConnectionManager
@@ -44,7 +45,10 @@ impl TryFrom<&SerializedEvtxRecord<Value>> for EventProvider {
             }
             "Microsoft-Windows-Security-Auditing" => EventProvider::SecurityAuditing,
             "Desktop Window Manager" => EventProvider::DesktopWindowManager,
-            _ => Self::UnsupportedProvider,
+            _ => {
+                log::error!("unknown provider name: {provider_name}");
+                Self::UnsupportedProvider
+            }
         })
     }
 }

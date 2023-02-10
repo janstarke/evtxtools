@@ -1,12 +1,12 @@
-use std::{path::PathBuf, collections::HashSet};
+use std::{collections::HashMap, path::PathBuf};
 
 use anyhow::bail;
-use evtx::{EvtxParser, SerializedEvtxRecord};
+use evtx::{EvtxParser};
 
-use super::{SessionEvent, SessionId, Session};
+use super::{Session, SessionEvent, SessionId};
 
 pub struct SessionStore {
-    sessions: HashSet<SessionId, Session>,
+    sessions: HashMap<SessionId, Session>,
 }
 
 impl TryFrom<Vec<PathBuf>> for SessionStore {
@@ -14,12 +14,13 @@ impl TryFrom<Vec<PathBuf>> for SessionStore {
 
     fn try_from(value: Vec<PathBuf>) -> Result<Self, Self::Error> {
         let mut sessions = Self {
-            sessions: Default::default()
+            sessions: HashMap::<SessionId, Session>::new(),
         };
         for path in value {
             if !(path.exists() && path.is_file()) {
                 bail!("unable to read file {}", path.display());
             }
+            log::info!("importing {} into session store", path.to_string_lossy());
 
             for event in EvtxParser::from_path(path)?
                 .records_json_value()
@@ -27,6 +28,7 @@ impl TryFrom<Vec<PathBuf>> for SessionStore {
                 .map(SessionEvent::try_from)
                 .filter_map(|r| r.ok())
             {
+                log::trace!("found session event at {}", event.record().timestamp);
                 sessions.add_event(event);
             }
         }
@@ -35,5 +37,26 @@ impl TryFrom<Vec<PathBuf>> for SessionStore {
 }
 
 impl SessionStore {
-    fn add_event(&mut self, event: SessionEvent) {}
+    fn add_event(&mut self, event: SessionEvent) {
+        if self.sessions.contains_key(event.session_id()) {
+            self.sessions
+                .entry(event.session_id().clone())
+                .and_modify(|s| s.add_event(event));
+        } else {
+            self.sessions
+                .insert(event.session_id().clone(), Session::from(event));
+        }
+    }
+}
+
+impl IntoIterator for SessionStore {
+    type Item = Session;
+
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let mut v = Vec::from_iter(self.sessions.into_values());
+        v.sort();
+        v.into_iter()
+    }
 }

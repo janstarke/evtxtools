@@ -4,19 +4,20 @@ use serde_json::Value;
 
 use super::{
     EventProvider, SessionEventError, SessionId, SessionIdGenerator, SessionNameInActivityId,
-    SessionNameInEventData, SessionNameInTargetLogonId,
+    SessionNameInLogonId, SessionNameInTargetLogonId,
 };
 
-pub trait SessionEventInfo
-{
+pub trait SessionEventInfo {
     fn event_id(&self) -> EventId;
     fn description(&self) -> &'static str;
     fn provider(&self) -> EventProvider;
+    fn generate_id(&self, record: &SerializedEvtxRecord<Value>) -> SessionId;
 }
 
 macro_rules! session_event {
     ($name: ident, $provider: expr, $event_id: expr, $description: expr, $generator: ident) => {
-        pub struct $name ();
+        pub struct $name();
+
         impl Default for $name {
             fn default() -> Self {
                 Self()
@@ -31,6 +32,9 @@ macro_rules! session_event {
             }
             fn provider(&self) -> EventProvider {
                 $provider
+            }
+            fn generate_id(&self, record: &SerializedEvtxRecord<Value>) -> SessionId {
+                $generator::session_id_of(record)
             }
         }
     };
@@ -104,7 +108,7 @@ session_event!(
     EventProvider::SecurityAuditing,
     4624,
     "An account was successfully logged on",
-    SessionNameInActivityId
+    SessionNameInTargetLogonId
 );
 session_event!(
     SecurityFailedLogin,
@@ -148,6 +152,7 @@ session_event!(
 pub struct SessionEvent {
     event_type: Box<dyn SessionEventInfo>,
     record: SerializedEvtxRecord<serde_json::Value>,
+    session_id: SessionId,
 }
 
 impl SessionEvent {
@@ -155,15 +160,21 @@ impl SessionEvent {
     where
         I: SessionEventInfo + Default + 'static,
     {
+        let event_type = Box::<I>::default();
+        let session_id = event_type.generate_id(&record);
         Self {
-            event_type: Box::<I>::default(),
+            event_type,
             record,
+            session_id,
         }
     }
 
-    #[allow(clippy::borrowed_box)]
-    pub fn info(&self) -> &Box<dyn SessionEventInfo> {
-        &self.event_type
+    pub fn record(&self) -> &SerializedEvtxRecord<Value> {
+        &self.record
+    }
+
+    pub fn session_id(&self) -> &SessionId {
+        &self.session_id
     }
 }
 
@@ -197,12 +208,35 @@ impl TryFrom<SerializedEvtxRecord<serde_json::Value>> for SessionEvent {
                 4779 => Self::new::<SecuritySessionWasDisconnected>(record),
                 _ => return Err(SessionEventError::NoSessionEvent),
             },
-            _ => return Err(SessionEventError::NoSessionEvent),
+            _ => {
+                log::error!("unknown event provider: {provider}");
+                return Err(SessionEventError::NoSessionEvent)
+            }
         };
 
         assert_eq!(&event_id, &event.event_type.event_id());
         assert_eq!(&provider, &event.event_type.provider());
 
         Ok(event)
+    }
+}
+
+impl Ord for SessionEvent {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.record.timestamp.cmp(&other.record.timestamp)
+    }
+}
+
+impl PartialOrd for SessionEvent {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Eq for SessionEvent {}
+
+impl PartialEq for SessionEvent {
+    fn eq(&self, other: &Self) -> bool {
+        self.record.timestamp.eq(&other.record.timestamp)
     }
 }
