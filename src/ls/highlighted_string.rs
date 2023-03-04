@@ -42,7 +42,14 @@ impl HighlightedStringBuilder {
         if ip_regex.is_match(s) {
             for c in ip_regex.captures_iter(s) {
                 for m in c.iter().flatten() {
-                    let ip_addr = Ipv4Addr::from_str(m.as_str()).unwrap();
+                    let ip_addr = match Ipv4Addr::from_str(m.as_str()) {
+                        Ok(addr) => addr,
+                        Err(_) => {
+                            log::warn!("invalid IP address: {}, don't highlighting it", m.as_str());
+                            continue;
+                        }
+                    };
+                    
                     if ip_addr.is_link_local() || ip_addr.is_loopback() || ip_addr.is_unspecified() {
                         continue;
                     }
