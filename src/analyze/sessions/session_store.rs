@@ -1,18 +1,17 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use anyhow::bail;
-use evtx::{EvtxParser};
+use eventdata::SessionId;
+use evtx::EvtxParser;
 
-use super::{Session, SessionEvent, SessionId};
+use super::{Session, SessionEvent};
 
 pub struct SessionStore {
     sessions: HashMap<SessionId, Session>,
 }
 
-impl TryFrom<Vec<PathBuf>> for SessionStore {
-    type Error = anyhow::Error;
-
-    fn try_from(value: Vec<PathBuf>) -> Result<Self, Self::Error> {
+impl SessionStore {
+    pub fn import(value: &Vec<PathBuf>, include_anonymous: bool) -> Result<Self, anyhow::Error> {
         let mut sessions = Self {
             sessions: HashMap::<SessionId, Session>::new(),
         };
@@ -32,11 +31,22 @@ impl TryFrom<Vec<PathBuf>> for SessionStore {
                 sessions.add_event(event);
             }
         }
-        Ok(sessions)
-    }
-}
 
-impl SessionStore {
+        Ok(Self {
+            sessions: sessions
+                .sessions
+                .into_iter()
+                .filter(|s| {
+                    if include_anonymous {
+                        true
+                    } else {
+                        !s.1.is_anonymous()
+                    }
+                })
+                .collect(),
+        })
+    }
+
     fn add_event(&mut self, event: SessionEvent) {
         if self.sessions.contains_key(event.session_id()) {
             self.sessions

@@ -60,9 +60,8 @@ fn main() -> Result<()> {
         }
     }
 
-    match current_range.take() {
-        Some(range) => ranges.push(range),
-        None => (),
+    if let Some(range) = current_range.take() {
+        ranges.push(range)
     }
     ranges.sort();
     print_ranges(&ranges, &records, &cli);

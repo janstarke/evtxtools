@@ -1,153 +1,13 @@
-use crate::data::EventId;
+use eventdata::{
+    EventId, EventProvider, SessionId
+};
 use evtx::SerializedEvtxRecord;
 use serde_json::Value;
 
-use super::{
-    EventProvider, SessionEventError, SessionId, SessionIdGenerator, SessionNameInActivityId,
-    SessionNameInLogonId, SessionNameInTargetLogonId,
-};
+use eventdata::SessionEventInfo;
+use super::session_event_info::*;
 
-pub trait SessionEventInfo {
-    fn event_id(&self) -> EventId;
-    fn description(&self) -> &'static str;
-    fn provider(&self) -> EventProvider;
-    fn generate_id(&self, record: &SerializedEvtxRecord<Value>) -> SessionId;
-}
-
-macro_rules! session_event {
-    ($name: ident, $provider: expr, $event_id: expr, $description: expr, $generator: ident) => {
-        pub struct $name();
-
-        impl Default for $name {
-            fn default() -> Self {
-                Self()
-            }
-        }
-        impl SessionEventInfo for $name {
-            fn event_id(&self) -> EventId {
-                $event_id.into()
-            }
-            fn description(&self) -> &'static str {
-                $description
-            }
-            fn provider(&self) -> EventProvider {
-                $provider
-            }
-            fn generate_id(&self, record: &SerializedEvtxRecord<Value>) -> SessionId {
-                $generator::session_id_of(record)
-            }
-        }
-    };
-}
-
-session_event!(
-    TSRCMUserAuthenticationSucceeded,
-    EventProvider::TerminalServicesRemoteConnectionManager,
-    1149,
-    "User authentication succeeded",
-    SessionNameInActivityId
-);
-
-session_event!(
-    TSLCMSessionLogonSucceeded,
-    EventProvider::TerminalServicesLocalConnectionManager,
-    21,
-    "Remote Desktop Services: Session logon succeeded",
-    SessionNameInActivityId
-);
-
-session_event!(
-    TSLCMShellStartNotificationReceived,
-    EventProvider::TerminalServicesLocalConnectionManager,
-    22,
-    "Remote Desktop Services: Shell start notification received",
-    SessionNameInActivityId
-);
-
-session_event!(
-    TSLCMSessionLogoffSucceeded,
-    EventProvider::TerminalServicesLocalConnectionManager,
-    23,
-    "Remote Desktop Services: Session logoff succeeded",
-    SessionNameInActivityId
-);
-
-session_event!(
-    TSLCMSessionHasBeenDisconnected,
-    EventProvider::TerminalServicesLocalConnectionManager,
-    24,
-    "Remote Desktop Services: Session has been disconnected",
-    SessionNameInActivityId
-);
-
-session_event!(
-    TSLCMSessionReconnectionSucceeded,
-    EventProvider::TerminalServicesLocalConnectionManager,
-    25,
-    "Remote Desktop Services: Session reconnection succeeded",
-    SessionNameInActivityId
-);
-
-session_event!(
-    TSLCMSessionXHasBeenDisconnectedBySessionY,
-    EventProvider::TerminalServicesLocalConnectionManager,
-    39,
-    "Session <X> has been disconnected by session <Y>",
-    SessionNameInActivityId
-);
-session_event!(
-    TSLCMSessionXHasBeenDisconnectedReasonCodeZ,
-    EventProvider::TerminalServicesLocalConnectionManager,
-    40,
-    "Session <X> has been disconnected, reason code <Z>",
-    SessionNameInActivityId
-);
-
-session_event!(
-    SecuritySuccessfulLogin,
-    EventProvider::SecurityAuditing,
-    4624,
-    "An account was successfully logged on",
-    SessionNameInTargetLogonId
-);
-session_event!(
-    SecurityFailedLogin,
-    EventProvider::SecurityAuditing,
-    4625,
-    "An account failed to log on",
-    SessionNameInActivityId
-);
-
-session_event!(
-    SecuritySuccessfulLogoff,
-    EventProvider::SecurityAuditing,
-    4634,
-    "An account was successfully logged off",
-    SessionNameInTargetLogonId
-);
-
-session_event!(
-    SecurityUserInitiatedLogoff,
-    EventProvider::SecurityAuditing,
-    4647,
-    "User initiated logoff",
-    SessionNameInTargetLogonId
-);
-
-session_event!(
-    SecuritySessionWasReconnected,
-    EventProvider::SecurityAuditing,
-    4778,
-    "A session was reconnected to a Window Station",
-    SessionNameInLogonId
-);
-session_event!(
-    SecuritySessionWasDisconnected,
-    EventProvider::SecurityAuditing,
-    4779,
-    "A session was disconnected from a Window Station.",
-    SessionNameInLogonId
-);
+use super::SessionEventError;
 
 pub struct SessionEvent {
     event_type: Box<dyn SessionEventInfo>,
@@ -167,6 +27,10 @@ impl SessionEvent {
             record,
             session_id,
         }
+    }
+
+    pub fn event_type(&self) -> &dyn SessionEventInfo {
+        self.event_type.as_ref()
     }
 
     pub fn record(&self) -> &SerializedEvtxRecord<Value> {
@@ -189,7 +53,7 @@ impl TryFrom<SerializedEvtxRecord<serde_json::Value>> for SessionEvent {
                 1149 => Self::new::<TSRCMUserAuthenticationSucceeded>(record),
                 _ => return Err(SessionEventError::NoSessionEvent),
             },
-            EventProvider::TerminalServicesLocalConnectionManager => match event_id.value() {
+            EventProvider::TerminalServicesLocalSessionManager => match event_id.value() {
                 21 => Self::new::<TSLCMSessionLogonSucceeded>(record),
                 22 => Self::new::<TSLCMShellStartNotificationReceived>(record),
                 23 => Self::new::<TSLCMSessionLogoffSucceeded>(record),
@@ -208,9 +72,13 @@ impl TryFrom<SerializedEvtxRecord<serde_json::Value>> for SessionEvent {
                 4779 => Self::new::<SecuritySessionWasDisconnected>(record),
                 _ => return Err(SessionEventError::NoSessionEvent),
             },
+            EventProvider::RemoteDesktopServicesRdpCoreTS => match event_id.value() {
+                131 => Self::new::<RdpAcceptedConnection>(record),
+                _ => return Err(SessionEventError::NoSessionEvent),
+            }
             _ => {
                 log::error!("unknown event provider: {provider}");
-                return Err(SessionEventError::NoSessionEvent)
+                return Err(SessionEventError::NoSessionEvent);
             }
         };
 

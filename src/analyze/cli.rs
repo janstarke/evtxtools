@@ -1,6 +1,6 @@
-use std::{path::PathBuf, io::stdout};
+use std::{io::stdout, path::PathBuf};
 
-use clap::{ValueEnum, Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 
 use super::sessions::SessionStore;
 
@@ -8,58 +8,93 @@ use super::sessions::SessionStore;
 pub enum Format {
     Json,
     Markdown,
+    Csv,
 
-    #[clap(name="latex")]
+    #[clap(name = "latex")]
     LaTeX,
 
-    Dot
+    Dot,
 }
 
 #[derive(Subcommand)]
 pub enum Command {
     /// generate a process tree
-    #[clap(name="pstree")]
+    #[clap(name = "pstree")]
     PsTree {
         /// display only processes of this user (case insensitive regex search)
         #[clap(short('U'), long("username"))]
         username: Option<String>,
+
+        /// Name of the evtx file to parse
+        evtx_file: PathBuf,
     },
 
-    #[clap(name="sessions")]
+    /// display sessions
+    #[clap(name = "sessions")]
     Sessions {
+        /// Names of the evtx files to parse
+        evtx_files: Vec<PathBuf>,
 
-    }
+        /// include anonymous sessions
+        #[clap(long("include-anonymous"))]
+        include_anonymous: bool,
+    },
 }
 
 #[derive(Parser)]
-pub (crate) struct Cli {
-    /// Name of the evtx file to parse
-    pub (crate) evtx_file: String,
-
+pub(crate) struct Cli {
     #[command(subcommand)]
-    pub (crate) command: Command,
+    pub(crate) command: Command,
 
-    #[clap(short('F'), long("format"), value_enum, default_value_t=Format::Json)]
-    pub (crate) format: Format,
+    #[clap(short('F'), long("format"), value_enum, default_value_t=Format::Csv)]
+    pub(crate) format: Format,
 
     #[command(flatten)]
-    pub (crate) verbose: clap_verbosity_flag::Verbosity,
+    pub(crate) verbose: clap_verbosity_flag::Verbosity,
 }
 
 impl Cli {
     pub fn display_sessions(&self) -> anyhow::Result<()> {
-        let evtx_files = vec![PathBuf::from(&self.evtx_file)];
-        let sessions = SessionStore::try_from(evtx_files)?;
+        match &self.command {
+            Command::Sessions {
+                evtx_files,
+                include_anonymous,
+            } => {
+                let sessions = SessionStore::import(evtx_files, *include_anonymous)?;
 
-        for session in sessions {
-            match self.format {
-                Format::Json => session.into_json(&mut stdout().lock())?,
-                Format::Markdown => println!("{}", session.into_markdown()),
-                Format::LaTeX => println!("{}", session.into_latex()),
-                Format::Dot => println!("{}", session.into_dot()),
+                match self.format {
+                    Format::Json => {
+                        for session in sessions {
+                            session.into_json(&mut stdout().lock())?;
+                        }
+                    }
+                    Format::Markdown => {
+                        for session in sessions {
+                            println!("{}", session.into_markdown());
+                        }
+                    }
+                    Format::LaTeX => {
+                        for session in sessions {
+                            println!("{}", session.into_latex());
+                        }
+                    }
+                    Format::Dot => {
+                        for session in sessions {
+                            println!("{}", session.into_dot());
+                        }
+                    }
+                    Format::Csv => {
+                        let mut csv_writer = csv::Writer::from_writer(stdout());
+                        for session in sessions {
+                            session.into_csv(&mut csv_writer)?;
+                        }
+                        csv_writer.flush()?;
+                    }
+                }
+
+                Ok(())
             }
-            println!();
+            _ => unreachable!(),
         }
-        Ok(())
     }
 }

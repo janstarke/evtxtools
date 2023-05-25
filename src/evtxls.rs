@@ -5,9 +5,8 @@ use std::{
 
 use anyhow::Result;
 use colored::{control::SHOULD_COLORIZE, Colorize};
-use data::EventId;
+use eventdata::EventId;
 use evtx::{EvtxParser, ParserSettings, SerializedEvtxRecord};
-mod data;
 
 use serde_json::Value;
 

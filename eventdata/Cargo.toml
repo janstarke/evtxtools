@@ -1,0 +1,15 @@
+[package]
+name = "eventdata"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = "1"
+serde_json = "1"
+evtx="0.8"
+anyhow="1"
+log = "0.4"
+darling = "0.20"
+quote = "1"

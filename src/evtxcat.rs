@@ -59,16 +59,13 @@ trait RecordFilter: Sized {
     ) -> (Vec<u64>, HashMap<u64, SerializedEvtxRecord<Self>>) {
         let mut record_ids: Vec<u64> = Vec::new();
         let mut records: HashMap<u64, SerializedEvtxRecord<Self>> = HashMap::new();
-        match Self::unfiltered(&mut parser).find(|record| match record {
-            Ok(evt) => evt.event_record_id == filter_id,
-            _ => false,
-        }) {
-            Some(result) => {
-                let evt = result.unwrap();
-                record_ids.push(evt.event_record_id);
-                records.insert(evt.event_record_id, evt);
-            }
-            None => (),
+        if let Some(result) = Self::unfiltered(&mut parser).find(|record| match record {
+                    Ok(evt) => evt.event_record_id == filter_id,
+                    _ => false,
+                }) {
+            let evt = result.unwrap();
+            record_ids.push(evt.event_record_id);
+            records.insert(evt.event_record_id, evt);
         }
         (record_ids, records)
     }

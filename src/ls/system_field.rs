@@ -1,8 +1,7 @@
 use clap::ValueEnum;
+use eventdata::{EvtxFieldView, EventId, EventRecordId, ActivityId, RelatedActivityId};
 use evtx::SerializedEvtxRecord;
 use serde_json::Value;
-
-use crate::data::{EventId, EventRecordId, ActivityId, RelatedActivityId, EvtxFieldView};
 
 #[derive(ValueEnum, Clone)]
 #[allow(clippy::enum_variant_names)]

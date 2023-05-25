@@ -1,36 +1,98 @@
-use std::{collections::{BTreeSet, HashSet}, io::Write};
+use std::{
+    collections::{BTreeSet, HashSet},
+    io::Write,
+};
 
-use evtx::SerializedEvtxRecord;
-use serde_json::Value;
-
-use super::{SessionEvent, SessionId, SessionAsJson};
+use super::{SessionAsCsv, SessionAsJson, SessionEvent};
+use eventdata::SessionId;
 
 pub struct Session {
     events: BTreeSet<SessionEvent>,
     session_id: SessionId,
+    domain: Option<String>,
     usernames: HashSet<String>,
+    clients: HashSet<String>,
+    server: Option<String>,
 }
 
-impl Session{
+impl Session {
     pub fn session_id(&self) -> &SessionId {
         &self.session_id
     }
 
     pub fn add_event(&mut self, event: SessionEvent) {
         assert_eq!(event.session_id(), &self.session_id);
-        if let Some(username) = Self::username_of(event.record()) {
+        let mut domain = None;
+        let username;
+
+        if let Some(u) = event.event_type().username(event.record()) {
+
+            if u.contains('\\') {
+                let mut parts: Vec<_> = u.split('\\').map(|s|s.to_owned()).collect();
+                assert_eq!(parts.len(), 2);
+                username = parts.pop().unwrap();
+                domain = Some(parts.pop().unwrap());
+            } else {
+                username = u;
+            }
             self.usernames.insert(username);
         }
+
+        if let Some(addr) = event.event_type().client_address(event.record()) {
+            if let Some(hostname) = event.event_type().client_hostname(event.record()) {
+                self.clients.insert(format!("{hostname}({addr})"));
+            } else {
+                self.clients.insert(addr);
+            }
+        } else if let Some(hostname) = event.event_type().client_hostname(event.record()) {
+            self.clients.insert(hostname);
+        }
+
+        let server = if let Some(addr) = event.event_type().server_address(event.record()) {
+            if let Some(hostname) = event.event_type().server_hostname(event.record()) {
+                Some(format!("{hostname}({addr})"))
+            } else {
+                Some(addr)
+            }
+        } else {
+            event.event_type().server_hostname(event.record())
+        };
+
+        if let Some(server) = server {
+            match &self.server {
+                None => self.server = Some(server),
+                Some(s) => {
+                    assert_eq!(s, &server, "multiple servers on one single connection are not supported: {s} != {server}");
+                }
+            }
+        }
+
+        if let Some(d2) = event.event_type().domain(event.record()) {
+            let d12 = if let Some(d1) = domain {
+                assert_eq!(d1, d2, "multiple domains on one single connection are not supported: {d1} != {d2}");
+                d1
+            } else {
+                d2
+            };
+
+            match &self.domain {
+                None => self.domain = Some(d12),
+                Some(d) => {
+                    assert_eq!(d, &d12, "multiple domains on one single connection are not supported: {d} != {d12}");
+                }
+            }
+        }
+
         self.events.insert(event);
     }
 
     pub fn first_event(&self) -> &SessionEvent {
-        debug_assert!(! self.events.is_empty());
+        debug_assert!(!self.events.is_empty());
         self.events.first().unwrap()
     }
 
     pub fn last_event(&self) -> &SessionEvent {
-        debug_assert!(! self.events.is_empty());
+        debug_assert!(!self.events.is_empty());
         self.events.last().unwrap()
     }
 
@@ -38,8 +100,18 @@ impl Session{
         unimplemented!()
     }
 
-    pub fn into_json<W>(self, writer: &mut W) -> serde_json::Result<()> where W: Write{
+    pub fn into_json<W>(self, writer: &mut W) -> serde_json::Result<()>
+    where
+        W: Write,
+    {
         serde_json::to_writer(writer, &Into::<SessionAsJson>::into(self))
+    }
+
+    pub fn into_csv<W>(self, writer: &mut csv::Writer<W>) -> csv::Result<()>
+    where
+        W: Write,
+    {
+        writer.serialize(&Into::<SessionAsCsv>::into(self))
     }
 
     pub fn into_latex(self) -> String {
@@ -50,28 +122,36 @@ impl Session{
         unimplemented!()
     }
 
-    fn username_of(record: &SerializedEvtxRecord<Value>) -> Option<String> {
-        record.data["Event"]["EventData"]["TargetUserName"].as_str().map(|u| u.into())
+    pub fn is_anonymous(&self) -> bool {
+        if self.usernames.is_empty() {
+            false
+        } else {
+            !self.usernames.iter().any(|u| !u.starts_with("ANONYMOUS"))
+        }
     }
 }
 
-impl From<SessionEvent> for Session{
+impl From<SessionEvent> for Session {
     fn from(value: SessionEvent) -> Self {
-        log::trace!("creating new session, starting at {}", value.record().timestamp);
+        log::trace!(
+            "creating new session, starting at {}",
+            value.record().timestamp
+        );
 
-        let mut events = BTreeSet::<SessionEvent>::new();
+        let events = BTreeSet::<SessionEvent>::new();
         let session_id = (*value.session_id()).clone();
 
-        let mut usernames = HashSet::new();
-        if let Some(username) = Self::username_of(value.record()) {
-            usernames.insert(username);
-        }
-        events.insert(value);
-        Self {
+        let mut me = Self {
             events,
             session_id,
-            usernames
-        }
+            domain: None,
+            usernames: HashSet::new(),
+            clients: HashSet::new(),
+            server: None,
+        };
+
+        me.add_event(value);
+        me
     }
 }
 
@@ -87,9 +167,7 @@ impl PartialOrd for Session {
     }
 }
 
-impl Eq for Session {
-    
-}
+impl Eq for Session {}
 
 impl PartialEq for Session {
     fn eq(&self, other: &Self) -> bool {
@@ -111,7 +189,31 @@ impl Into<SessionAsJson> for Session {
             duration,
             session_id,
             usernames: self.usernames,
-            events
+            events,
+        }
+    }
+}
+
+#[allow(clippy::from_over_into)]
+impl Into<SessionAsCsv> for Session {
+    fn into(self) -> SessionAsCsv {
+        let begin = self.first_event().record().timestamp;
+        let end = self.last_event().record().timestamp;
+        let duration = end - begin;
+        let session_id = self.session_id().clone();
+        let events = self.events.len();
+        let usernames: Vec<_> = self.usernames.into_iter().collect();
+        let clients: Vec<_> = self.clients.into_iter().collect();
+        SessionAsCsv {
+            begin,
+            end,
+            duration,
+            session_id,
+            domain: self.domain.clone(),
+            usernames: usernames.join(", "),
+            clients: clients.join(", "),
+            server: self.server,
+            events,
         }
     }
 }

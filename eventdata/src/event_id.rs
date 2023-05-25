@@ -1,13 +1,15 @@
 use std::fmt::Display;
 
 use anyhow::bail;
+use darling::FromMeta;
 use evtx::SerializedEvtxRecord;
+use quote::quote;
 use serde_json::Value;
 
 use super::EvtxFieldView;
 
 #[derive(PartialEq, Eq, Clone, Debug)]
-pub struct EventId(u16);
+pub struct EventId(pub u16);
 
 impl TryFrom<&SerializedEvtxRecord<Value>> for EventId {
     type Error = anyhow::Error;
@@ -61,5 +63,26 @@ impl From<u16> for EventId {
 impl Display for EventId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.0.fmt(f)
+    }
+}
+
+impl FromMeta for EventId {
+    fn from_value(value: &darling::export::syn::Lit) -> darling::Result<Self> {
+        match value {
+            darling::export::syn::Lit::Int(lit) => Ok(Self::from(lit.base10_parse::<u16>()?)),
+            _ => Err(darling::Error::unknown_value("invalid event id")),
+        }
+    }
+}
+
+impl quote::ToTokens for EventId {
+    fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
+        let me = self.0;
+        tokens.extend(quote!(
+            {
+                use eventdata::EventId;
+                EventId(#me)
+            }
+        ))
     }
 }

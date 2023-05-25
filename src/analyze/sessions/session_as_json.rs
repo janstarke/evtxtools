@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use chrono::{DateTime, Utc, Duration};
 use serde::{Serialize, Serializer};
 
-use super::{SessionId};
+use eventdata::SessionId;
 
 
 #[derive(Serialize, Debug)]

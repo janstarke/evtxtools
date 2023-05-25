@@ -1,17 +1,31 @@
-use crate::data::ActivityId;
+use std::sync::Mutex;
+
+use crate::ActivityId;
 use evtx::SerializedEvtxRecord;
 use serde::Serialize;
 use serde_json::Value;
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Debug, Serialize)]
+#[derive(PartialEq, Eq, PartialOrd, Hash, Ord, Clone, Debug, Serialize)]
 pub enum SessionId {
     ActivityId(String),
     SessionName(String),
-    LogonId(String)
+    LogonId(String),
+    None(u64),
 }
 
 pub trait SessionIdGenerator {
     fn session_id_of(record: &SerializedEvtxRecord<Value>) -> SessionId;
+}
+
+static NO_SESSION_ID_MUTEX: Mutex<u64> = Mutex::new(0);
+pub struct NoSessionId {}
+impl SessionIdGenerator for NoSessionId {
+    fn session_id_of(_: &SerializedEvtxRecord<Value>) -> SessionId {
+        let mut id_mutex = NO_SESSION_ID_MUTEX.lock().unwrap();
+        let id = *id_mutex;
+        *id_mutex = id + 1;
+        SessionId::None(id)
+    }
 }
 
 pub struct SessionNameInEventData {}
@@ -46,7 +60,7 @@ pub struct SessionNameInTargetLogonId {}
 impl SessionIdGenerator for SessionNameInTargetLogonId {
     fn session_id_of(record: &SerializedEvtxRecord<Value>) -> SessionId {
         SessionId::LogonId(
-            record.data["Event"]["EventData"]["TargetLogonId"]
+            record.data["Event"]["EventData"]["SessionName"]
                 .as_str()
                 .expect("missing TargetLogonId in event")
                 .into(),
@@ -69,11 +83,15 @@ impl SessionIdGenerator for SessionNameInSubjectLogonId {
 pub struct SessionNameInLogonId {}
 impl SessionIdGenerator for SessionNameInLogonId {
     fn session_id_of(record: &SerializedEvtxRecord<Value>) -> SessionId {
-        SessionId::LogonId(
-            record.data["Event"]["EventData"]["LogonId"]
-                .as_str()
-                .expect("missing LogonId in event")
-                .into(),
-        )
+        if let Some(children) = record.data["Event"]["EventData"].as_object() {
+            for child in children {
+                if child.0.to_lowercase() == "targetlogonid" {
+                    return SessionId::LogonId(child.1.as_str().unwrap().to_owned())
+                }if child.0.to_lowercase() == "logonid" {
+                    return SessionId::LogonId(child.1.as_str().unwrap().to_owned())
+                }
+            }
+        }
+        panic!("missing LogonId in event: {event}", event = record.data);
     }
 }
