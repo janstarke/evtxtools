@@ -1,24 +1,35 @@
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, path::Path, ops::Index};
 
-use anyhow::bail;
 use eventdata::SessionId;
 use evtx::EvtxParser;
 
 use super::{Session, SessionEvent};
+
+static KNOWN_FILES: & [&str] = &[
+    "Security.evtx",
+    "Microsoft-Windows-TerminalServices-RDPClient%4Operational.evtx",
+    "Microsoft-Windows-TerminalServices-RemoteConnectionManager%4Operational.evtx",
+    "Microsoft-Windows-TerminalServices-LocalSessionManager%4Operational.evtx"
+];
 
 pub struct SessionStore {
     sessions: HashMap<SessionId, Session>,
 }
 
 impl SessionStore {
-    pub fn import(value: &Vec<PathBuf>, include_anonymous: bool) -> Result<Self, anyhow::Error> {
+    pub fn import(evtx_files_dir: &Path, include_anonymous: bool) -> Result<Self, anyhow::Error> {
         let mut sessions = Self {
             sessions: HashMap::<SessionId, Session>::new(),
         };
-        for path in value {
+
+
+        for filename in KNOWN_FILES {
+            let path = evtx_files_dir.join(filename);
             if !(path.exists() && path.is_file()) {
-                bail!("unable to read file {}", path.display());
+                log::warn!("unable to read file {}", path.display());
+                continue;
             }
+
             log::info!("importing {} into session store", path.to_string_lossy());
 
             for event in EvtxParser::from_path(path)?
@@ -56,6 +67,22 @@ impl SessionStore {
             self.sessions
                 .insert(event.session_id().clone(), Session::from(event));
         }
+    }
+
+    pub fn find_session(&self, index: &str) -> Option<&Session> {
+        self.sessions.iter().find(|(k, v)| {
+            match k {
+                SessionId::ActivityId(id)|
+                SessionId::SessionName(id)|
+                SessionId::LogonId(id) |
+                SessionId::SessionId(id) => {
+                    index == id
+                }
+                SessionId::None(id) => {
+                    index == id.to_string()
+                },
+            }
+        }).map(|(_, v)| v)
     }
 }
 

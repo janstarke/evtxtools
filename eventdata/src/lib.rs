@@ -21,3 +21,6 @@ pub use event_provider::*;
 
 mod event_record_id;
 pub use event_record_id::*;
+
+mod event_level;
+pub use event_level::*;

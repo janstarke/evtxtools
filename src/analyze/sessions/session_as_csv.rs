@@ -21,6 +21,8 @@ pub struct SessionAsCsv {
 
     pub server: Option<String>,
 
+    pub computer: String,
+
     pub session_id: SessionId,
 
     pub events: usize,

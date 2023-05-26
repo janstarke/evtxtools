@@ -4,11 +4,12 @@ use anyhow::bail;
 use darling::FromMeta;
 use evtx::SerializedEvtxRecord;
 use quote::quote;
+use serde::Serialize;
 use serde_json::Value;
 
 use super::EvtxFieldView;
 
-#[derive(PartialEq, Eq, Clone, Debug)]
+#[derive(PartialEq, Eq, Clone, Debug, Serialize)]
 pub struct EventId(pub u16);
 
 impl TryFrom<&SerializedEvtxRecord<Value>> for EventId {

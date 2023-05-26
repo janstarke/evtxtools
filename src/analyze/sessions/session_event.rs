@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use eventdata::{
     EventId, EventProvider, SessionId
 };
@@ -5,6 +7,7 @@ use evtx::SerializedEvtxRecord;
 use serde_json::Value;
 
 use eventdata::SessionEventInfo;
+use super::EventAsCsv;
 use super::session_event_info::*;
 
 use super::SessionEventError;
@@ -39,6 +42,13 @@ impl SessionEvent {
 
     pub fn session_id(&self) -> &SessionId {
         &self.session_id
+    }
+
+    pub fn into_csv<W>(&self, writer: &mut csv::Writer<W>) -> csv::Result<()>
+    where
+        W: Write,
+    {
+        writer.serialize(&Into::<EventAsCsv>::into(self))
     }
 }
 

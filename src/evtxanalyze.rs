@@ -19,5 +19,6 @@ fn main() -> anyhow::Result<()> {
         //TODO: move `display_pstree` into `impl Cli`
         analyze::Command::PsTree { .. } => display_pstree(&cli),
         analyze::Command::Sessions { .. } => cli.display_sessions(),
+        analyze::Command::Session { .. } => cli.display_single_session(),
     }
 }

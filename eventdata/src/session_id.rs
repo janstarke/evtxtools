@@ -10,6 +10,7 @@ pub enum SessionId {
     ActivityId(String),
     SessionName(String),
     LogonId(String),
+    SessionId(String),
     None(u64),
 }
 
@@ -93,5 +94,17 @@ impl SessionIdGenerator for SessionNameInLogonId {
             }
         }
         panic!("missing LogonId in event: {event}", event = record.data);
+    }
+}
+
+pub struct SessionIdInUserData {}
+impl SessionIdGenerator for SessionIdInUserData {
+    fn session_id_of(record: &SerializedEvtxRecord<Value>) -> SessionId {
+        SessionId::LogonId(
+            record.data["Event"]["UserData"]["EventXML"]["SessionID"]
+                .as_str()
+                .expect("missing SessionID in event")
+                .into(),
+        )
     }
 }

@@ -33,11 +33,20 @@ pub enum Command {
     #[clap(name = "sessions")]
     Sessions {
         /// Names of the evtx files to parse
-        evtx_files: Vec<PathBuf>,
+        evtx_files_dir: PathBuf,
 
         /// include anonymous sessions
         #[clap(long("include-anonymous"))]
         include_anonymous: bool,
+    },
+
+    #[clap(name = "session")]
+    Session {
+        /// Names of the evtx files to parse
+        evtx_files_dir: PathBuf,
+
+        /// Session ID
+        session_id: String,
     },
 }
 
@@ -54,13 +63,44 @@ pub(crate) struct Cli {
 }
 
 impl Cli {
+    pub fn display_single_session(&self) -> anyhow::Result<()> {
+        match &self.command {
+            Command::Session {
+                evtx_files_dir,
+                session_id,
+            } => {
+                let sessions = SessionStore::import(evtx_files_dir, true)?;
+                match sessions.find_session(&session_id) {
+                    None => log::error!("no value found for session id {session_id}"),
+                    Some(session) => {
+                        match self.format {
+                            Format::Json => todo!(),
+                            Format::Markdown => todo!(),
+                            Format::Csv => {
+                                let mut csv_writer = csv::Writer::from_writer(stdout());
+                                for event in session.iter_events() {
+                                    event.into_csv(&mut csv_writer)?;
+                                }
+                                csv_writer.flush()?;
+                            }
+                            Format::LaTeX => todo!(),
+                            Format::Dot => todo!(),
+                        }
+                    }
+                }
+                Ok(())
+            }
+
+            _ => unreachable!(),
+        }
+    }
     pub fn display_sessions(&self) -> anyhow::Result<()> {
         match &self.command {
             Command::Sessions {
-                evtx_files,
+                evtx_files_dir,
                 include_anonymous,
             } => {
-                let sessions = SessionStore::import(evtx_files, *include_anonymous)?;
+                let sessions = SessionStore::import(evtx_files_dir, *include_anonymous)?;
 
                 match self.format {
                     Format::Json => {

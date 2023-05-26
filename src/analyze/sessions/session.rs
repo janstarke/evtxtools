@@ -1,6 +1,6 @@
 use std::{
     collections::{BTreeSet, HashSet},
-    io::Write,
+    io::Write
 };
 
 use super::{SessionAsCsv, SessionAsJson, SessionEvent};
@@ -13,11 +13,16 @@ pub struct Session {
     usernames: HashSet<String>,
     clients: HashSet<String>,
     server: Option<String>,
+    computer: String,
 }
 
 impl Session {
     pub fn session_id(&self) -> &SessionId {
         &self.session_id
+    }
+
+    pub fn iter_events(&self) -> impl Iterator<Item=&SessionEvent> {
+        self.events.iter()
     }
 
     pub fn add_event(&mut self, event: SessionEvent) {
@@ -141,6 +146,8 @@ impl From<SessionEvent> for Session {
         let events = BTreeSet::<SessionEvent>::new();
         let session_id = (*value.session_id()).clone();
 
+        let computer = value.record().data["Event"]["System"]["Computer"].as_str().unwrap().to_owned();
+
         let mut me = Self {
             events,
             session_id,
@@ -148,6 +155,7 @@ impl From<SessionEvent> for Session {
             usernames: HashSet::new(),
             clients: HashSet::new(),
             server: None,
+            computer,
         };
 
         me.add_event(value);
@@ -213,6 +221,7 @@ impl Into<SessionAsCsv> for Session {
             usernames: usernames.join(", "),
             clients: clients.join(", "),
             server: self.server,
+            computer: self.computer,
             events,
         }
     }
