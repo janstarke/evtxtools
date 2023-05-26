@@ -40,6 +40,7 @@ pub enum Command {
         include_anonymous: bool,
     },
 
+    /// display one single session
     #[clap(name = "session")]
     Session {
         /// Names of the evtx files to parse
