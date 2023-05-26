@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::Path, ops::Index};
+use std::{collections::HashMap, path::Path};
 
 use eventdata::SessionId;
 use evtx::EvtxParser;
@@ -70,7 +70,7 @@ impl SessionStore {
     }
 
     pub fn find_session(&self, index: &str) -> Option<&Session> {
-        self.sessions.iter().find(|(k, v)| {
+        self.sessions.iter().find(|(k, _)| {
             match k {
                 SessionId::ActivityId(id)|
                 SessionId::SessionName(id)|

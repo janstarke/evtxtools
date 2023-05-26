@@ -44,7 +44,7 @@ impl SessionEvent {
         &self.session_id
     }
 
-    pub fn into_csv<W>(&self, writer: &mut csv::Writer<W>) -> csv::Result<()>
+    pub fn to_csv<W>(&self, writer: &mut csv::Writer<W>) -> csv::Result<()>
     where
         W: Write,
     {

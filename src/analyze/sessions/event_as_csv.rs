@@ -1,6 +1,6 @@
-use chrono::{DateTime, Duration, Utc};
-use eventdata::{EventId, SessionId, EventLevel};
-use serde::{Serialize, Serializer};
+use chrono::{DateTime, Utc};
+use eventdata::{EventId, EventLevel};
+use serde::Serialize;
 
 use super::SessionEvent;
 
@@ -20,8 +20,6 @@ pub struct EventAsCsv {
 
     pub server_address: Option<String>,
     pub server_name: Option<String>,
-
-
 }
 
 impl From<&SessionEvent> for EventAsCsv {

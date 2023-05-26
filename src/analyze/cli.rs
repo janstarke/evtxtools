@@ -71,7 +71,7 @@ impl Cli {
                 session_id,
             } => {
                 let sessions = SessionStore::import(evtx_files_dir, true)?;
-                match sessions.find_session(&session_id) {
+                match sessions.find_session(session_id) {
                     None => log::error!("no value found for session id {session_id}"),
                     Some(session) => {
                         match self.format {
@@ -80,7 +80,7 @@ impl Cli {
                             Format::Csv => {
                                 let mut csv_writer = csv::Writer::from_writer(stdout());
                                 for event in session.iter_events() {
-                                    event.into_csv(&mut csv_writer)?;
+                                    event.to_csv(&mut csv_writer)?;
                                 }
                                 csv_writer.flush()?;
                             }
