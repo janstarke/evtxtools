@@ -27,6 +27,10 @@ pub enum Command {
 
         /// Name of the evtx file to parse
         evtx_file: PathBuf,
+
+        /// output format
+        #[clap(short('F'), long("format"), value_enum, default_value_t=Format::Csv)]
+        format: Format,
     },
 
     /// display sessions
@@ -56,9 +60,6 @@ pub(crate) struct Cli {
     #[command(subcommand)]
     pub(crate) command: Command,
 
-    #[clap(short('F'), long("format"), value_enum, default_value_t=Format::Csv)]
-    pub(crate) format: Format,
-
     #[command(flatten)]
     pub(crate) verbose: clap_verbosity_flag::Verbosity,
 }
@@ -74,19 +75,11 @@ impl Cli {
                 match sessions.find_session(session_id) {
                     None => log::error!("no value found for session id {session_id}"),
                     Some(session) => {
-                        match self.format {
-                            Format::Json => todo!(),
-                            Format::Markdown => todo!(),
-                            Format::Csv => {
-                                let mut csv_writer = csv::Writer::from_writer(stdout());
-                                for event in session.iter_events() {
-                                    event.to_csv(&mut csv_writer)?;
-                                }
-                                csv_writer.flush()?;
-                            }
-                            Format::LaTeX => todo!(),
-                            Format::Dot => todo!(),
+                        let mut csv_writer = csv::Writer::from_writer(stdout());
+                        for event in session.iter_events() {
+                            event.to_csv(&mut csv_writer)?;
                         }
+                        csv_writer.flush()?;
                     }
                 }
                 Ok(())
@@ -103,36 +96,11 @@ impl Cli {
             } => {
                 let sessions = SessionStore::import(evtx_files_dir, *include_anonymous)?;
 
-                match self.format {
-                    Format::Json => {
-                        for session in sessions {
-                            session.into_json(&mut stdout().lock())?;
-                        }
-                    }
-                    Format::Markdown => {
-                        for session in sessions {
-                            println!("{}", session.into_markdown());
-                        }
-                    }
-                    Format::LaTeX => {
-                        for session in sessions {
-                            println!("{}", session.into_latex());
-                        }
-                    }
-                    Format::Dot => {
-                        for session in sessions {
-                            println!("{}", session.into_dot());
-                        }
-                    }
-                    Format::Csv => {
-                        let mut csv_writer = csv::Writer::from_writer(stdout());
-                        for session in sessions {
-                            session.into_csv(&mut csv_writer)?;
-                        }
-                        csv_writer.flush()?;
-                    }
+                let mut csv_writer = csv::Writer::from_writer(stdout());
+                for session in sessions {
+                    session.into_csv(&mut csv_writer)?;
                 }
-
+                csv_writer.flush()?;
                 Ok(())
             }
             _ => unreachable!(),

@@ -21,6 +21,7 @@ pub(crate) fn display_pstree(cli: &Cli) -> anyhow::Result<()> {
         crate::analyze::Command::PsTree {
             username,
             evtx_file,
+            format
         } => {
             let username_regex = username
                 .as_ref()
@@ -93,7 +94,7 @@ pub(crate) fn display_pstree(cli: &Cli) -> anyhow::Result<()> {
 
             log::warn!("{} processes have no parent", root_processes.len());
 
-            match cli.format {
+            match format {
                 Format::Json => {
                     let root_processes: BTreeMap<_, _> = events
                         .values()

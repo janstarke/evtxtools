@@ -101,30 +101,11 @@ impl Session {
         self.events.last().unwrap()
     }
 
-    pub fn into_markdown(self) -> String {
-        unimplemented!()
-    }
-
-    pub fn into_json<W>(self, writer: &mut W) -> serde_json::Result<()>
-    where
-        W: Write,
-    {
-        serde_json::to_writer(writer, &Into::<SessionAsJson>::into(self))
-    }
-
     pub fn into_csv<W>(self, writer: &mut csv::Writer<W>) -> csv::Result<()>
     where
         W: Write,
     {
         writer.serialize(&Into::<SessionAsCsv>::into(self))
-    }
-
-    pub fn into_latex(self) -> String {
-        unimplemented!()
-    }
-
-    pub fn into_dot(self) -> String {
-        unimplemented!()
     }
 
     pub fn is_anonymous(&self) -> bool {
