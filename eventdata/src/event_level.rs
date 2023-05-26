@@ -12,16 +12,21 @@ pub enum EventLevel {
     Warning,
     Information,
     AuditSuccess,
-    AuditFailure
+    AuditFailure,
 }
 
 impl TryFrom<&SerializedEvtxRecord<Value>> for EventLevel {
     type Error = anyhow::Error;
 
-    fn try_from(value: &SerializedEvtxRecord<Value>) -> Result<Self, <EventLevel as TryFrom<&SerializedEvtxRecord<Value>>>::Error> {
+    fn try_from(
+        value: &SerializedEvtxRecord<Value>,
+    ) -> Result<Self, <EventLevel as TryFrom<&SerializedEvtxRecord<Value>>>::Error> {
         match value.data["Event"]["System"]["Level"].as_u64() {
             Some(level_id) => Self::try_from(level_id),
-            None => Err(anyhow!("missing event level in '{data}'", data=value.data)),
+            None => Err(anyhow!(
+                "missing event level in '{data}'",
+                data = value.data
+            )),
         }
     }
 }
@@ -37,7 +42,7 @@ impl TryFrom<u64> for EventLevel {
             3 => EventLevel::Warning,
             4 => EventLevel::Information,
             5 => EventLevel::LogAlways,
-            _ => return Err(anyhow!("unknown log level identifier: {value}"))
+            _ => return Err(anyhow!("unknown log level identifier: {value}")),
         })
     }
 }
@@ -59,7 +64,9 @@ impl Display for EventLevel {
 impl Serialize for EventLevel {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer {match self {
+        S: serde::Serializer,
+    {
+        match self {
             EventLevel::LogAlways => serializer.serialize_str("✍️"),
             EventLevel::Critical => serializer.serialize_char('💢'),
             EventLevel::Error => serializer.serialize_char('🔥'),

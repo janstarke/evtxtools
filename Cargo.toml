@@ -1,6 +1,6 @@
 [package]
 name = "evtxtools"
-version = "1.13.0"
+version = "1.13.1"
 edition = "2021"
 authors = ["Jan Starke <jan.starke@posteo.de>"]
 license = "GPL-3.0"
@@ -31,7 +31,7 @@ path = "src/evtxanalyze.rs"
 
 [dependencies]
 sessionevent-derive = {path="sessionevent-derive"}
-eventdata = {path="eventdata"}
+eventdata = {path="eventdata", version="0.1.0"}
 
 clap={version="4", features=["derive", "cargo", "wrap_help"]}
 clap-verbosity-flag = {version="2.0.0"}
