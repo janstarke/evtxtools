@@ -141,11 +141,11 @@ impl EvtxLs {
 
         let output = match self.cli.delimiter {
             None => format!(
-                "{} {system_fields}{event_data} {event_data}",
+                "{} {system_fields}{event_data}",
                 record.timestamp.format("%FT%T%.3f")
             ),
             Some(d) => format!(
-                "{}{d}{system_fields}{event_data}{d}{event_data}",
+                "{}{d}{system_fields}{event_data}",
                 record.timestamp.to_rfc3339()
             ),
         }
