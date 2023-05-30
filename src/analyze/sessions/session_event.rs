@@ -8,7 +8,7 @@ use serde_json::Value;
 
 use eventdata::SessionEventInfo;
 use super::EventAsCsv;
-use super::session_event_info::*;
+use super::session_event_templates::*;
 
 use super::SessionEventError;
 
@@ -76,6 +76,7 @@ impl TryFrom<SerializedEvtxRecord<serde_json::Value>> for SessionEvent {
             EventProvider::SecurityAuditing => match event_id.value() {
                 4624 => Self::new::<SecuritySuccessfulLogin>(record),
                 4625 => Self::new::<SecurityFailedLogin>(record),
+                4627 => Self::new::<SecurityGroupMembership>(record),
                 4634 => Self::new::<SecuritySuccessfulLogoff>(record),
                 4647 => Self::new::<SecurityUserInitiatedLogoff>(record),
                 4778 => Self::new::<SecuritySessionWasReconnected>(record),
