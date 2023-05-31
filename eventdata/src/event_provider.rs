@@ -64,7 +64,7 @@ impl TryFrom<&str> for EventProvider {
             "Desktop Window Manager" => EventProvider::DesktopWindowManager,
             _ => {
                 //panic!("unknown provider name: {value}");
-                log::error!("unknown provider name: {value}");
+                log::warn!("unknown provider name: {value}");
                 Self::UnsupportedProvider
             }
         })

@@ -27,7 +27,7 @@ impl Session {
 
     pub fn add_event(&mut self, event: SessionEvent) {
         assert_eq!(event.session_id(), &self.session_id);
-        let mut domain = None;
+        let mut domain_from_username = None;
         let username;
 
         if let Some(u) = event.event_type().username(event.record()) {
@@ -36,7 +36,7 @@ impl Session {
                 let mut parts: Vec<_> = u.split('\\').map(|s|s.to_owned()).collect();
                 assert_eq!(parts.len(), 2);
                 username = parts.pop().unwrap();
-                domain = Some(parts.pop().unwrap());
+                domain_from_username = Some(parts.pop().unwrap());
             } else {
                 username = u;
             }
@@ -72,18 +72,18 @@ impl Session {
             }
         }
 
-        if let Some(d2) = event.event_type().domain(event.record()) {
-            let d12 = if let Some(d1) = domain {
-                assert_eq!(d1, d2, "multiple domains on one single connection are not supported: {d1} != {d2}");
-                d1
+        if let Some(domain_from_record) = event.event_type().domain(event.record()) {
+            let domain = if let Some(domain) = domain_from_username {
+                assert_eq!(domain, domain_from_record, "multiple domains on one single connection are not supported: {domain} != {domain_from_record}");
+                domain.to_uppercase()
             } else {
-                d2
+                domain_from_record.to_lowercase()
             };
 
             match &self.domain {
-                None => self.domain = Some(d12),
+                None => self.domain = Some(domain),
                 Some(d) => {
-                    assert_eq!(d, &d12, "multiple domains on one single connection are not supported: {d} != {d12}");
+                    assert_eq!(d, &domain, "multiple domains on one single connection are not supported: {d} != {domain}");
                 }
             }
         }

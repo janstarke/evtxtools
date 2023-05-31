@@ -88,7 +88,7 @@ impl TryFrom<SerializedEvtxRecord<serde_json::Value>> for SessionEvent {
                 _ => return Err(SessionEventError::NoSessionEvent),
             }
             _ => {
-                log::error!("unknown event provider: {provider}");
+                log::warn!("unknown event provider: {provider}");
                 return Err(SessionEventError::NoSessionEvent);
             }
         };
