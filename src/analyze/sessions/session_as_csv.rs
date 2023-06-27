@@ -2,6 +2,8 @@ use chrono::{DateTime, Duration, Utc};
 use eventdata::SessionId;
 use serde::{Serialize, Serializer};
 
+use super::ActiveDirectoryDomainName;
+
 #[derive(Serialize, Debug)]
 pub struct SessionAsCsv {
     #[serde(serialize_with = "serialize_timestamp")]
@@ -13,7 +15,7 @@ pub struct SessionAsCsv {
     #[serde(serialize_with = "serialize_duration")]
     pub duration: Duration,
 
-    pub domain: Option<String>,
+    pub domain: Option<ActiveDirectoryDomainName>,
 
     pub usernames: String,
 

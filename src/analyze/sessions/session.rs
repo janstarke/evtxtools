@@ -1,15 +1,15 @@
 use std::{
     collections::{BTreeSet, HashSet},
-    io::Write
+    io::Write,
 };
 
-use super::{SessionAsCsv, SessionAsJson, SessionEvent};
+use super::{ActiveDirectoryDomainName, SessionAsCsv, SessionAsJson, SessionEvent};
 use eventdata::SessionId;
 
 pub struct Session {
     events: BTreeSet<SessionEvent>,
     session_id: SessionId,
-    domain: Option<String>,
+    domain: Option<ActiveDirectoryDomainName>,
     usernames: HashSet<String>,
     clients: HashSet<String>,
     server: Option<String>,
@@ -21,7 +21,7 @@ impl Session {
         &self.session_id
     }
 
-    pub fn iter_events(&self) -> impl Iterator<Item=&SessionEvent> {
+    pub fn iter_events(&self) -> impl Iterator<Item = &SessionEvent> {
         self.events.iter()
     }
 
@@ -31,9 +31,8 @@ impl Session {
         let username;
 
         if let Some(u) = event.event_type().username(event.record()) {
-
             if u.contains('\\') {
-                let mut parts: Vec<_> = u.split('\\').map(|s|s.to_owned()).collect();
+                let mut parts: Vec<_> = u.split('\\').map(|s| s.to_owned()).collect();
                 assert_eq!(parts.len(), 2);
                 username = parts.pop().unwrap();
                 domain_from_username = Some(parts.pop().unwrap());
@@ -73,17 +72,21 @@ impl Session {
         }
 
         if let Some(domain_from_record) = event.event_type().domain(event.record()) {
-            let domain = if let Some(domain) = domain_from_username {
-                assert_eq!(domain, domain_from_record, "multiple domains on one single connection are not supported: {domain} != {domain_from_record}");
-                domain.to_uppercase()
-            } else {
-                domain_from_record.to_lowercase()
+            let domain = match domain_from_username {
+                Some(domain) if !domain.is_empty() => {
+                    assert_eq!(domain, domain_from_record, "multiple domains on one single connection are not supported: {domain} != {domain_from_record}");
+                    Some(ActiveDirectoryDomainName::from(domain))
+                }
+                _ if ! domain_from_record.is_empty() => Some(ActiveDirectoryDomainName::from(domain_from_record)),
+                _ => None
             };
 
             match &self.domain {
-                None => self.domain = Some(domain),
-                Some(d) => {
-                    assert_eq!(d, &domain, "multiple domains on one single connection are not supported: {d} != {domain}");
+                None => self.domain = domain,
+                Some(d) => if let Some(new_domain) = domain {
+                    if d != &new_domain {
+                        log::warn!("multiple domains on one single connection are not supported: {d} != {new_domain}, failed event was {event}", event = event.record().data);
+                    }
                 }
             }
         }
@@ -127,7 +130,10 @@ impl From<SessionEvent> for Session {
         let events = BTreeSet::<SessionEvent>::new();
         let session_id = (*value.session_id()).clone();
 
-        let computer = value.record().data["Event"]["System"]["Computer"].as_str().unwrap().to_owned();
+        let computer = value.record().data["Event"]["System"]["Computer"]
+            .as_str()
+            .unwrap()
+            .to_owned();
 
         let mut me = Self {
             events,

@@ -24,3 +24,6 @@ pub use event_record_id::*;
 
 mod event_level;
 pub use event_level::*;
+
+mod process_id;
+pub use process_id::*;

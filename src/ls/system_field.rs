@@ -1,5 +1,7 @@
+use std::fmt::Display;
+
 use clap::ValueEnum;
-use eventdata::{EvtxFieldView, EventId, EventRecordId, ActivityId, RelatedActivityId};
+use eventdata::{EvtxFieldView, EventId, EventRecordId, ActivityId, RelatedActivityId, ProcessId, PROCESS_ID_MAX_LENGTH};
 use evtx::SerializedEvtxRecord;
 use serde_json::Value;
 
@@ -17,6 +19,9 @@ pub (crate) enum SystemField {
 
     /// A globally unique identifier that identifies the activity to which control was transferred to. The related events would then have this identifier as their ActivityID identifier.
     RelatedActivityId,
+
+    /// The ID of the process that created the event
+    ProcessId
 }
 
 pub (crate) trait FilterBySystemField {
@@ -32,9 +37,36 @@ impl FilterBySystemField for SerializedEvtxRecord<Value> {
                 SystemField::EventRecordId => result.push(Box::new(EventRecordId::from(record))),
                 SystemField::ActivityId => result.push(Box::new(ActivityId::try_from(record)?)),
                 SystemField::RelatedActivityId => result.push(Box::new(RelatedActivityId::try_from(record)?)),
+                SystemField::ProcessId => {
+                    match ProcessId::try_from(record) {
+                        Ok(f) => result.push(Box::new(f)),
+                        _ => result.push(Box::new(EmptyField::with_size(PROCESS_ID_MAX_LENGTH)))    
+                    }
+                }
             }
         }
 
         Ok(result)
     }
+}
+
+struct EmptyField {
+    size: usize
+}
+
+impl EmptyField {
+    pub fn with_size(size: usize) -> Self {
+        Self {
+            size
+        }
+    }
+}
+
+impl Display for EmptyField {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", " ".repeat(self.size))
+    }
+}
+impl EvtxFieldView for EmptyField {
+
 }
