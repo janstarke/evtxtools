@@ -3,6 +3,13 @@
 This package aims to be a collection of tools for forensic analysis of evtx files
 
 
+> **Warning**
+> This Repository has been moved to <https://github.com/janstarke/dfir-toolkit>
+>
+> You can install the tools by running `cargo install dfir-toolkit`
+> 
+
+
 # `evtxscan`
 
 Finds time skews in an evtx file
