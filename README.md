@@ -7,6 +7,8 @@ This package aims to be a collection of tools for forensic analysis of evtx file
 > This Repository has been moved to <https://github.com/janstarke/dfir-toolkit>
 >
 > You can install the tools by running `cargo install dfir-toolkit`
+>
+> The tool `processtree` is now part of `evtxanalyze` (https://github.com/dfir-dd/dfir-toolkit/blob/main/doc/evtxanalyze.md#evtxanalyze-pstree)
 > 
 
 
